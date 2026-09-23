@@ -29,6 +29,7 @@ paw/
 ├── frontend/
 ├── packages/
 │   └── shared/
+├── docs/                (brainstorming.md, architecture.md + .id.md versions)
 └── package.json        (npm workspaces root)
 ```
 
@@ -79,7 +80,8 @@ Zod schemas + inferred TypeScript types for API request/response shapes, plus sh
 ## 7. Root Level
 
 - `package.json` — npm workspaces root: `"workspaces": ["backend", "frontend", "packages/*"]`
-- Existing docs: `README.md`, `CLAUDE.md`, `brainstorming.md`/`brainstorming.id.md`, `architecture.md`/`architecture.id.md`
+- `README.md` stays at root
+- `docs/` — `brainstorming.md`/`brainstorming.id.md`, `architecture.md`/`architecture.id.md`
 
 ## 8. Open Items (carried over from brainstorming)
 

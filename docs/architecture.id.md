@@ -29,6 +29,7 @@ paw/
 ├── frontend/
 ├── packages/
 │   └── shared/
+├── docs/                (brainstorming.md, architecture.md + versi .id.md)
 └── package.json        (root npm workspaces)
 ```
 
@@ -79,7 +80,8 @@ Zod schema + TypeScript types hasil infer buat bentuk request/response API, plus
 ## 7. Root Level
 
 - `package.json` — root npm workspaces: `"workspaces": ["backend", "frontend", "packages/*"]`
-- Dokumen yang udah ada: `README.md`, `CLAUDE.md`, `brainstorming.md`/`brainstorming.id.md`, `architecture.md`/`architecture.id.md`
+- `README.md` tetap di root
+- `docs/` — `brainstorming.md`/`brainstorming.id.md`, `architecture.md`/`architecture.id.md`
 
 ## 8. Open Items (lanjutan dari brainstorming)
 
