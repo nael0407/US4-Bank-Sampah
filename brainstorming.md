@@ -63,14 +63,12 @@ Web app for "bank sampah" (trash bank) — a community system where residents de
 - Riwayat Pembelian (purchase history)
 - Profil
 
-## 5. Team Notes (optional/TBD)
+## 5. Team Notes
 
-4 team members, dev-role split not yet decided. Just an example of how it *could* split — not a final decision:
+4 team members, dev-role split decided:
 
-- Member A — Backend (Express.js, API, DB)
-- Member B — Frontend/UI
-- Member C — Database/QA
-- Member D — PM/Docs/Integration
+- Member A, Member B — Frontend & UI/UX
+- Member C, Member D — Backend & Database
 
 ## 6. Open Questions / TODO
 
