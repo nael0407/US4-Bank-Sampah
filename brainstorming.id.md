@@ -2,7 +2,7 @@
 
 ## 1. Gambaran Umum
 
-Aplikasi web bank sampah — sistem komunitas di mana warga menyetor sampah tersortir dan dapat saldo, yang nanti bisa ditarik. Tugas kuliah kelompok (4 anggota), backend pakai Express.js. Tech stack frontend dan keputusan teknis lain: belum ditentukan.
+Aplikasi web bank sampah — sistem komunitas di mana warga menyetor sampah tersortir dan dapat saldo, yang nanti bisa ditarik. Tugas kuliah kelompok (4 anggota). Stack: backend Express.js/PostgreSQL, frontend Next.js — lihat bagian Tech Stack di bawah.
 
 ## 2. Role Pengguna
 
@@ -70,12 +70,21 @@ Aplikasi web bank sampah — sistem komunitas di mana warga menyetor sampah ters
 - Member A, Member B — Frontend & UI/UX
 - Member C, Member D — Backend & Database
 
-## 6. Open Questions / TODO
+## 6. Tech Stack
 
-- Framework frontend pilih apa?
-- Database pilih apa?
+- **Backend:** Express.js (TypeScript) di Railway
+  - ORM: Prisma
+  - Validasi: Zod
+  - Auth: session atau JWT-based (metode belum final)
+- **Database:** PostgreSQL di Railway
+- **Frontend:** Next.js (App Router) + TypeScript, di Vercel
+  - Styling/UI: Tailwind CSS + shadcn/ui
+  - Data fetching: TanStack Query (React Query)
+- **Bentuk repo:** monorepo, `backend/` (Express/Prisma) + `frontend/` (Next.js) — sesuai pembagian tim 2+2.
+
+## 7. Open Questions / TODO
+
 - Metode auth (session, JWT, dll)?
 - Metode tarik saldo — transfer bank, e-wallet, ambil tunai?
 - Multi-cabang bakal masuk scope, minimal sebagai stretch goal?
-- Target deployment?
 - Ada batasan rubrik dari dosen yang belum dikasih tau (fitur wajib, deadline, format submit)?
