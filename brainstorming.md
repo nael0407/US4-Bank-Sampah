@@ -68,8 +68,7 @@ Web app for "bank sampah" (trash bank) — a community system where residents de
 4 team members, dev-role split decided:
 
 - Member A, Member B — Frontend & UI/UX
-- Member C — Backend & Database
-- Adnan Abdul Majid (NIM 24/544058/TK/60471) — Backend & Database
+- Member C, Member D — Backend & Database
 
 ## 6. Tech Stack
 
