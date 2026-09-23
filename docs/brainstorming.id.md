@@ -2,66 +2,64 @@
 
 ## 1. Gambaran Umum
 
-Aplikasi web bank sampah — sistem komunitas di mana warga menyetor sampah tersortir dan dapat saldo, yang nanti bisa ditarik. Tugas kuliah kelompok (4 anggota). Stack: backend Express.js/PostgreSQL, frontend Next.js — lihat bagian Tech Stack di bawah.
+User story **US4 — Bank sampah: pencatatan setoran & saldo otomatis**. Bank sampah tingkat RW nyatet setoran nasabah di buku tabungan manual: jenis sampah, berat, nilainya, terus dijumlahin jadi saldo tiap nasabah yang sewaktu-waktu bisa ditarik jadi uang. Pencatatan manual rawan salah hitung pas petugas ngelayanin banyak nasabah sekaligus, dan kalau buku hilang/rusak, saldo nasabah gak bisa ditelusuri lagi.
+
+Aplikasi ini mendigitalkan seluruh proses: petugas nimbang dan input data setoran, saldo nasabah terakumulasi otomatis sebagai buku besar, dan nasabah bisa cek saldo sendiri serta ngajuin penarikan.
+
+Tugas kuliah kelompok (4 anggota). Stack wajib sesuai rubrik: ExpressJS, MongoDB, Next.js.
 
 ## 2. Role Pengguna
 
 ### Nasabah (warga/customer)
-- Setor sampah tersortir
-- Punya saldo dari hasil setoran
-- Tarik saldo
-- Jual-beli "paket" di marketplace
+- Daftar akun
+- Cek saldo dan riwayat setoran/mutasi
+- Ajuin penarikan (tunai atau e-wallet)
+- Lihat titik & jadwal jemput di peta
 
-### Admin / Petugas bank sampah
-- Catat setoran
-- Atur harga sampah per jenis
-- Atur harga paket
-- Approve penarikan saldo
-- Kelola paket, lihat laporan
+### Petugas bank sampah
+- Input hasil timbangan sebagai setoran
+- Proses pengajuan penarikan (setujui/tolak)
+- Bisa batalin setoran yang salah (bikin entri koreksi)
 
-### Pengepul / Pembeli
-- Beli paket dari Nasabah atau dari bank sampah
-- Browse marketplace, lihat riwayat pembelian
+### Admin (pengelola)
+- Atur jenis sampah dan harga per kg (harga bisa berubah kapan aja)
+- Kelola akun pengguna (nasabah & petugas)
+- Kelola titik & jadwal jemput
+- Lihat laporan
+
+Perbedaan wewenang ini jadi titik penerapan otorisasi di API.
 
 ## 3. Fitur Inti
 
-- **Setor sampah:** Nasabah setor sampah yang udah disortir, dapat kredit saldo.
-- **Saldo & tarik saldo:** Nasabah bisa tarik saldo yang udah terkumpul.
-- **Daftar harga sampah:** Admin atur harga per kg per jenis sampah.
-- **Paket:** Sampah dibundel per kategori (bundle campuran, contoh: "paket elektronik", "paket organik") — bukan cuma bundle satu jenis.
-- **Trading paket:** Paket bisa dijual-beli:
-  - Nasabah ↔ Pengepul
-  - Bank sampah ↔ Pengepul
-  - Nasabah ↔ Nasabah
-  - Harga tetap ditentukan admin (bukan nego/lelang)
-  - Bank sampah single-location — nggak ada trading antar cabang
-- **Laporan/statistik:** Total sampah terkumpul, dampak lingkungan, saldo nasabah.
+- **Jenis & harga sampah:** tiap jenis punya harga per kg sendiri (contoh: plastik PET, kardus, kertas, kaleng, botol kaca). Harga bisa berubah kapan aja.
+- **Setoran:** tanggal, nasabah, dan rincian jenis sampah × berat × harga. Totalnya masuk ke saldo nasabah sebagai catatan buku besar. Harga di-snapshot per item, jadi perubahan harga nanti gak ngubah riwayat.
+- **Saldo & buku besar:** tiap perubahan saldo jadi satu baris buku besar — saldo selalu bisa ditelusuri, gak ada buku yang bisa hilang.
+- **Penarikan:** nasabah ajuin pencairan tunai atau e-wallet; petugas proses.
+- **Laporan:** total kg dan nilai per jenis sampah per periode, total penarikan, saldo beredar.
+- **Titik & jadwal jemput (nilai tambah):** peta (Leaflet) titik penjemputan beserta jadwalnya.
+- **Email otomatis (nilai tambah):** nasabah dapet email pas setoran tercatat atau status penarikan berubah.
 
 ## 4. Daftar Halaman/Screen Kasar per Role
 
 **Nasabah**
-- Login/Register
-- Dashboard (ringkasan saldo)
-- Setor Sampah (form setoran)
-- Riwayat Transaksi
-- Marketplace Paket (browse/beli/jual paket)
-- Tarik Saldo
+- Login / Register
+- Dashboard (saldo, grafik, setoran terbaru)
+- Riwayat (riwayat setoran & mutasi)
+- Tarik Saldo (pengajuan + status)
+- Jadwal Jemput (peta & jadwal)
 - Profil
 
-**Admin/Petugas**
-- Dashboard Admin
-- Kelola Nasabah
-- Catat Setoran
-- Kelola Harga Sampah
-- Kelola Paket
-- Approve Tarik Saldo
-- Laporan
+**Petugas**
+- Dashboard (setoran hari ini, penarikan pending)
+- Setoran (input setoran baru, daftar setoran)
+- Penarikan (proses pengajuan penarikan)
 
-**Pengepul/Pembeli**
+**Admin**
 - Dashboard
-- Marketplace Paket (browse/beli)
-- Riwayat Pembelian
-- Profil
+- Jenis Sampah (jenis & harga)
+- Pengguna (kelola nasabah & petugas)
+- Titik Jemput (kelola titik & jadwal)
+- Laporan
 
 ## 5. Catatan Tim
 
@@ -73,18 +71,18 @@ Aplikasi web bank sampah — sistem komunitas di mana warga menyetor sampah ters
 ## 6. Tech Stack
 
 - **Backend:** Express.js (TypeScript) di Railway
-  - ORM: Prisma
+  - ODM: Mongoose
   - Validasi: Zod
-  - Auth: session atau JWT-based (metode belum final)
-- **Database:** PostgreSQL di Railway
+  - Hashing password: bcrypt
+- **Database:** MongoDB Atlas (free tier, replica set → transaction bisa jalan)
 - **Frontend:** Next.js (App Router) + TypeScript, di Vercel
   - Styling/UI: Tailwind CSS + shadcn/ui
   - Data fetching: TanStack Query (React Query)
-- **Bentuk repo:** monorepo, `backend/` (Express/Prisma) + `frontend/` (Next.js) — sesuai pembagian tim 2+2.
+  - Peta: Leaflet (react-leaflet)
+- **Email:** Nodemailer / Resend
+- **Bentuk repo:** monorepo, `backend/` + `frontend/` + `packages/shared` — sesuai pembagian tim 2+2.
 
 ## 7. Open Questions / TODO
 
-- Metode auth (session, JWT, dll)?
-- Metode tarik saldo — transfer bank, e-wallet, ambil tunai?
-- Multi-cabang bakal masuk scope, minimal sebagai stretch goal?
-- Ada batasan rubrik dari dosen yang belum dikasih tau (fitur wajib, deadline, format submit)?
+- Mekanisme auth: JWT di httpOnly cookie (rekomendasi) atau session?
+- Pencairan e-wallet: transfer manual oleh petugas, atau disbursement beneran via payment gateway nanti?
