@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-Web app for "bank sampah" (trash bank) — a community system where residents deposit sorted waste and get credited a balance, which they can later withdraw. University group project (4 members), backend on Express.js. Frontend stack and other tech decisions: TBD.
+Web app for "bank sampah" (trash bank) — a community system where residents deposit sorted waste and get credited a balance, which they can later withdraw. University group project (4 members). Stack: Express.js/PostgreSQL backend, Next.js frontend — see Tech Stack section below.
 
 ## 2. User Roles
 
@@ -70,12 +70,21 @@ Web app for "bank sampah" (trash bank) — a community system where residents de
 - Member A, Member B — Frontend & UI/UX
 - Member C, Member D — Backend & Database
 
-## 6. Open Questions / TODO
+## 6. Tech Stack
 
-- Frontend framework choice?
-- Database choice?
+- **Backend:** Express.js (TypeScript) on Railway
+  - ORM: Prisma
+  - Validation: Zod
+  - Auth: session or JWT-based (method TBD)
+- **Database:** PostgreSQL on Railway
+- **Frontend:** Next.js (App Router) + TypeScript, on Vercel
+  - Styling/UI: Tailwind CSS + shadcn/ui
+  - Data fetching: TanStack Query (React Query)
+- **Repo shape:** monorepo, `backend/` (Express/Prisma) + `frontend/` (Next.js) — matches the 2+2 team split.
+
+## 7. Open Questions / TODO
+
 - Auth method (session, JWT, etc.)?
 - Withdrawal method — bank transfer, e-wallet, cash pickup?
 - Is multi-branch ever in scope, even as a stretch goal?
-- Deployment target?
 - Any grading-rubric constraints not yet shared by the lecturer (required features, deadline, submission format)?
