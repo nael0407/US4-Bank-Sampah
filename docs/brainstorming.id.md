@@ -79,7 +79,7 @@ Perbedaan wewenang ini jadi titik penerapan otorisasi di API.
   - Styling/UI: Tailwind CSS + shadcn/ui
   - Data fetching: TanStack Query (React Query)
   - Peta: Leaflet (react-leaflet)
-- **Email:** Nodemailer / Resend
+- **Email:** SendGrid (`@sendgrid/mail`)
 - **Bentuk repo:** monorepo, `backend/` + `frontend/` + `packages/shared` — sesuai pembagian tim 2+2.
 
 ## 7. Open Questions / TODO
