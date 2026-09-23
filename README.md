@@ -19,6 +19,23 @@ Aplikasi web bank sampah — sistem komunitas di mana warga (nasabah) menyetor s
 - **Trading paket** — Paket bisa dijual-beli antara Nasabah↔Pengepul, Bank sampah↔Pengepul, dan Nasabah↔Nasabah. Harga tetap ditentukan admin (bukan nego/lelang). Bank sampah single-location, gak ada trading antar cabang.
 - **Laporan/statistik** — Total sampah terkumpul, dampak lingkungan, saldo nasabah.
 
+### Fitur Detail
+
+Saldo dalam **Rupiah**. Jual-beli paket dibayar **pakai saldo di app**. Pas setoran, tiap item bisa **Jual langsung** (bank beli → saldo nambah, jadi stok bank) atau **Simpan sebagai stok** (tetep milik nasabah, bisa dijual nanti sebagai paket).
+
+| Fitur | Role | Ringkasan |
+|---|---|---|
+| Auth & akun | Semua | Register (nasabah/pengepul), login/logout; admin di-seed; password di-hash |
+| Kelola user | Admin | List, cari, nonaktifin nasabah/pengepul |
+| Jenis & harga sampah | Admin | Jenis per kategori; `harga_beli`/kg (setoran) & `harga_jual`/kg (paket) |
+| Setor sampah | Admin → Nasabah | Catat item + berat, mode Jual/Simpan; harga di-snapshot |
+| Saldo & mutasi | Nasabah, Pengepul | Tiap perubahan saldo tercatat di ledger mutasi |
+| Tarik saldo | Nasabah → Admin | Ajuin ≤ saldo, admin approve/reject |
+| Top-up saldo | Pengepul → Admin | Bayar ke bank di luar app, admin konfirmasi |
+| Paket | Nasabah, Admin | Bundle stok satu kategori, stok dikunci, admin verifikasi; harga = Σ berat × harga_jual |
+| Beli paket | Nasabah, Pengepul | Nasabah→Pengepul, Nasabah→Nasabah, Bank→Pengepul; satu DB transaction, ambil barang di bank |
+| Laporan | Admin, Nasabah | Total kg per jenis/periode, saldo beredar, estimasi sampah gak masuk TPA |
+
 ## Anggota Tim
 
 4 anggota, pembagian role dev:
