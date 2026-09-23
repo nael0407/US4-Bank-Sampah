@@ -32,7 +32,7 @@ flowchart LR
     end
 
     DB[(MongoDB Atlas)]
-    MAIL[Email Service]
+    MAIL[SendGrid Email API]
     SH["packages/shared\nZod schemas & types"]
 
     N --> UI
@@ -59,7 +59,7 @@ sequenceDiagram
     participant CT as Setoran Controller
     participant SV as Setoran Service
     participant DB as MongoDB (Mongoose)
-    participant EM as Email Service
+    participant EM as SendGrid
 
     PT->>FE: Submit deposit form (nasabah, items)
     FE->>MW: POST /api/setoran (fetch)
@@ -100,7 +100,7 @@ backend/
 │   ├── services/        (business logic: price snapshot, saldo & ledger, withdrawals, reports, email)
 │   ├── models/          (Mongoose schemas: User, JenisSampah, Setoran, Penarikan, MutasiSaldo, TitikJemput)
 │   ├── middlewares/     (auth, role guard, error handler, Zod request validation)
-│   ├── lib/              (db.ts mongoose connect, mailer.ts, env/config loader)
+│   ├── lib/              (db.ts mongoose connect, mailer.ts SendGrid client, env/config loader)
 │   ├── seed.ts           (initial admin + sample waste types)
 │   ├── app.ts            (Express app + middleware wiring)
 │   └── server.ts         (entrypoint, starts the HTTP server)
@@ -191,7 +191,8 @@ Money is stored in **Rupiah** as integers. Every balance change goes through the
 
 ### 9.9 Automatic Email (value-add)
 - Nasabah receives an email when a deposit is recorded and when a withdrawal is approved/rejected. Sent after the DB transaction commits; a mail failure never rolls back the transaction.
-- **Where:** `backend/src/lib/mailer.ts`, called from setoran & penarikan services.
+- **Provider:** SendGrid via `@sendgrid/mail` — API key in `SENDGRID_API_KEY`, sender address in `SENDGRID_FROM_EMAIL` (must be a verified sender in SendGrid). Free tier is enough for this project.
+- **Where:** `backend/src/lib/mailer.ts` (SendGrid client + email templates), called from setoran & penarikan services.
 
 ### 9.10 Supporting UX
 - Dashboard per role, saldo/deposit charts, search & filter on tables, loading skeletons, toast notifications, inline form errors, responsive layout.
