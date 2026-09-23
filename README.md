@@ -2,39 +2,49 @@
 
 ## Deskripsi Aplikasi
 
-Aplikasi web bank sampah — sistem komunitas di mana warga (nasabah) menyetor sampah yang udah disortir dan dapat saldo, yang nanti bisa ditarik. Nasabah juga bisa jual-beli "paket" sampah (bundle per kategori, misal "paket elektronik" atau "paket organik") lewat marketplace ke Pengepul atau sesama nasabah. Tugas kuliah kelompok, backend pakai Express.js.
+**US4 — Bank sampah: pencatatan setoran & saldo otomatis.** Bank sampah tingkat RW selama ini nyatet setoran nasabah di buku tabungan manual: jenis sampah, berat, dan nilainya, terus dijumlahin jadi saldo yang sewaktu-waktu bisa ditarik jadi uang. Pencatatan manual rawan salah hitung pas petugas ngelayanin banyak nasabah sekaligus, dan kalau buku hilang atau rusak, saldo nasabah gak bisa ditelusuri lagi.
+
+Aplikasi ini mendigitalkan seluruh proses: petugas nimbang dan input data setoran, saldo nasabah terakumulasi otomatis sebagai buku besar, dan nasabah bisa cek saldo sendiri serta ngajuin penarikan (tunai atau e-wallet). Tugas kuliah kelompok.
 
 ### Role Pengguna
 
-- **Nasabah (warga/customer)** — setor sampah tersortir, punya saldo dari hasil setoran, tarik saldo, jual-beli paket di marketplace.
-- **Admin / Petugas bank sampah** — catat setoran, atur harga sampah per jenis, atur harga paket, approve penarikan saldo, kelola paket, lihat laporan.
-- **Pengepul / Pembeli** — beli paket dari Nasabah atau dari bank sampah, browse marketplace, lihat riwayat pembelian.
+- **Nasabah** — daftar akun, cek saldo dan riwayat setoran/mutasi, ajuin penarikan (tunai atau e-wallet), lihat titik & jadwal jemput di peta.
+- **Petugas** — input hasil timbangan sebagai setoran, proses pengajuan penarikan, batalin setoran yang salah input.
+- **Admin** — atur jenis sampah dan harga per kg, kelola akun nasabah & petugas, kelola titik & jadwal jemput, lihat laporan.
+
+Perbedaan wewenang ini jadi titik penerapan otorisasi di API.
 
 ### Fitur Inti
 
-- **Setor sampah** — Nasabah setor sampah yang udah disortir, dapat kredit saldo.
-- **Saldo & tarik saldo** — Nasabah bisa tarik saldo yang udah terkumpul.
-- **Daftar harga sampah** — Admin atur harga per kg per jenis sampah.
-- **Paket** — Sampah dibundel per kategori (bundle campuran, contoh: "paket elektronik", "paket organik"), bukan cuma bundle satu jenis.
-- **Trading paket** — Paket bisa dijual-beli antara Nasabah↔Pengepul, Bank sampah↔Pengepul, dan Nasabah↔Nasabah. Harga tetap ditentukan admin (bukan nego/lelang). Bank sampah single-location, gak ada trading antar cabang.
-- **Laporan/statistik** — Total sampah terkumpul, dampak lingkungan, saldo nasabah.
+- **Jenis & harga sampah** — tiap jenis punya harga per kg sendiri (plastik PET, kardus, kertas, kaleng, botol kaca, dll). Harga bisa berubah kapan aja.
+- **Setoran** — tanggal, nasabah, dan rincian jenis sampah × berat × harga. Totalnya otomatis masuk ke saldo nasabah sebagai catatan buku besar.
+- **Saldo & buku besar** — tiap perubahan saldo tercatat, jadi saldo selalu bisa ditelusuri.
+- **Penarikan** — nasabah ajuin pencairan tunai atau ke dompet digital, petugas proses.
+- **Laporan** — total kg dan nilai per jenis sampah per periode, total penarikan, saldo beredar.
+- **Titik & jadwal jemput** (nilai tambah) — peta Leaflet titik penjemputan beserta jadwalnya.
+- **Email otomatis** (nilai tambah) — nasabah dapet email pas setoran tercatat atau status penarikan berubah.
 
 ### Fitur Detail
 
-Saldo dalam **Rupiah**. Jual-beli paket dibayar **pakai saldo di app**. Pas setoran, tiap item bisa **Jual langsung** (bank beli → saldo nambah, jadi stok bank) atau **Simpan sebagai stok** (tetep milik nasabah, bisa dijual nanti sebagai paket).
+Saldo disimpan dalam **Rupiah** (bilangan bulat). Harga di-snapshot di tiap item setoran, jadi perubahan harga gak ngubah riwayat. Setoran dan penarikan yang disetujui ditulis dalam satu transaction MongoDB (saldo + buku besar sekaligus). Setoran yang salah gak diedit, tapi dibatalin dengan entri koreksi.
 
-| Fitur | Role | Ringkasan |
-|---|---|---|
-| Auth & akun | Semua | Register (nasabah/pengepul), login/logout; admin di-seed; password di-hash |
-| Kelola user | Admin | List, cari, nonaktifin nasabah/pengepul |
-| Jenis & harga sampah | Admin | Jenis per kategori; `harga_beli`/kg (setoran) & `harga_jual`/kg (paket) |
-| Setor sampah | Admin → Nasabah | Catat item + berat, mode Jual/Simpan; harga di-snapshot |
-| Saldo & mutasi | Nasabah, Pengepul | Tiap perubahan saldo tercatat di ledger mutasi |
-| Tarik saldo | Nasabah → Admin | Ajuin ≤ saldo, admin approve/reject |
-| Top-up saldo | Pengepul → Admin | Bayar ke bank di luar app, admin konfirmasi |
-| Paket | Nasabah, Admin | Bundle stok satu kategori, stok dikunci, admin verifikasi; harga = Σ berat × harga_jual |
-| Beli paket | Nasabah, Pengepul | Nasabah→Pengepul, Nasabah→Nasabah, Bank→Pengepul; satu DB transaction, ambil barang di bank |
-| Laporan | Admin, Nasabah | Total kg per jenis/periode, saldo beredar, estimasi sampah gak masuk TPA |
+| Fitur | Role | Ringkasan | Endpoint utama |
+|---|---|---|---|
+| Auth & akun | Semua | Register nasabah, login/logout, password di-hash bcrypt, cek token + role tiap route | `/api/auth/*` |
+| Kelola pengguna | Admin | CRUD nasabah & petugas, cari, nonaktifin | `/api/users` |
+| Jenis & harga sampah | Admin | CRUD jenis sampah + harga/kg, soft delete kalau udah dipake | `/api/jenis-sampah` |
+| Setoran | Petugas | Pilih nasabah, input jenis + berat, total masuk saldo; bisa dibatalin (koreksi) | `/api/setoran` |
+| Saldo & buku besar | Nasabah | Lihat saldo + mutasi (SETORAN, PENARIKAN, KOREKSI) | `/api/saldo` |
+| Penarikan | Nasabah → Petugas | Ajuin ≤ saldo, metode TUNAI / E_WALLET; petugas setujui/tolak | `/api/penarikan` |
+| Laporan | Admin | Total kg & nilai per jenis per periode, total penarikan, saldo beredar, grafik | `/api/laporan` |
+| Titik & jadwal jemput | Admin, Nasabah | Admin kelola titik (koordinat + jadwal), nasabah lihat di peta | `/api/titik-jemput` |
+| Email otomatis | Sistem | Email ke nasabah pas setoran tercatat & penarikan diproses | — |
+
+### Halaman per Role
+
+- **Nasabah:** login/register, dashboard (saldo + grafik), riwayat, tarik saldo, jadwal jemput, profil
+- **Petugas:** dashboard, setoran (input + daftar), penarikan
+- **Admin:** dashboard, jenis sampah, pengguna, titik jemput, laporan
 
 ## Anggota Tim
 
@@ -45,30 +55,35 @@ Saldo dalam **Rupiah**. Jual-beli paket dibayar **pakai saldo di app**. Pas seto
 
 ## Tech Stack
 
+Sesuai stack wajib rubrik (ExpressJS, MongoDB, Next.js):
+
 - **Backend:** Express.js (TypeScript) di Railway
-  - ORM: Prisma
+  - ODM: Mongoose
   - Validasi: Zod
-  - Auth: session atau JWT-based (metode belum final)
-- **Database:** PostgreSQL di Railway
+  - Hashing password: bcrypt
+- **Database:** MongoDB Atlas (free tier)
 - **Frontend:** Next.js (App Router) + TypeScript, di Vercel
   - Styling/UI: Tailwind CSS + shadcn/ui
   - Data fetching: TanStack Query (React Query)
-- **Bentuk repo:** monorepo pakai npm workspaces, `backend/` (Express/Prisma) + `frontend/` (Next.js) + `packages/shared` — sesuai pembagian tim 2+2.
+  - Peta: Leaflet (react-leaflet)
+- **Email:** Nodemailer / Resend
+- **Bentuk repo:** monorepo pakai npm workspaces — `backend/` + `frontend/` + `packages/shared`.
 - Frontend manggil Express API langsung (gak ada layer proxy Next.js API routes).
 
 ## Arsitektur
 
-```
-Browser (Nasabah / Admin / Pengepul)
-  → Next.js (frontend/, Vercel)
-    → fetch (REST) → Express route (backend/src/routes)
-      → controller (backend/src/controllers)
-        → service (backend/src/services)
-          → Prisma client (backend/src/lib)
-            → PostgreSQL (Railway)
+```mermaid
+flowchart LR
+    U[Nasabah / Petugas / Admin] --> FE[Next.js — Vercel]
+    FE -->|REST fetch| MW[Middleware Auth + Role]
+    MW --> RT[Routes] --> CT[Controllers] --> SV[Services] --> MD[Model Mongoose]
+    MD --> DB[(MongoDB Atlas)]
+    SV -->|notifikasi| MAIL[Email]
+    SH[packages/shared — Zod schema & types] -.-> FE
+    SH -.-> MW
 ```
 
-Validasi dilakukan di batas route pakai Zod schema, di-share ke frontend lewat `packages/shared`, jadi kedua sisi (frontend & backend) sepakat sama bentuk request/response yang sama.
+Validasi pakai Zod schema yang di-share ke frontend lewat `packages/shared`, jadi frontend dan backend sepakat sama bentuk request/response yang sama.
 
 ## Struktur Folder & File
 
@@ -76,12 +91,13 @@ Validasi dilakukan di batas route pakai Zod schema, di-share ke frontend lewat `
 paw/
 ├── backend/                  # Express API
 │   ├── src/
-│   │   ├── routes/           # nasabah.routes.ts, admin.routes.ts, paket.routes.ts, auth.routes.ts, laporan.routes.ts
+│   │   ├── routes/           # auth, users, jenis-sampah, setoran, penarikan, saldo, laporan, titik-jemput
 │   │   ├── controllers/      # satu per route group, parse request, panggil service, kirim response
-│   │   ├── services/         # business logic: setor sampah, saldo, trading paket, panggil Prisma
-│   │   ├── middlewares/      # auth, error handler, validasi request pakai Zod
-│   │   ├── prisma/           # schema.prisma, migrations/
-│   │   ├── lib/               # Prisma client singleton, config/env loader
+│   │   ├── services/         # business logic: snapshot harga, saldo & mutasi, penarikan, laporan, email
+│   │   ├── models/           # schema Mongoose: User, JenisSampah, Setoran, Penarikan, MutasiSaldo, TitikJemput
+│   │   ├── middlewares/      # auth, role guard, error handler, validasi Zod
+│   │   ├── lib/               # db.ts (koneksi mongoose), mailer.ts, config/env loader
+│   │   ├── seed.ts            # admin awal + contoh jenis sampah
 │   │   ├── app.ts             # setup Express app + middleware
 │   │   └── server.ts          # entrypoint, jalanin HTTP server
 │   ├── .env
@@ -91,33 +107,31 @@ paw/
 ├── frontend/                 # Next.js app (App Router)
 │   ├── app/
 │   │   ├── (auth)/            # login, register
-│   │   ├── nasabah/           # dashboard, setor-sampah, riwayat, marketplace, tarik-saldo, profil
-│   │   ├── admin/             # dashboard, nasabah, setoran, harga-sampah, paket, tarik-saldo, laporan
-│   │   ├── pengepul/           # dashboard, marketplace, riwayat
+│   │   ├── nasabah/           # dashboard, riwayat, tarik-saldo, jadwal-jemput, profil
+│   │   ├── petugas/           # dashboard, setoran, penarikan
+│   │   ├── admin/             # dashboard, jenis-sampah, pengguna, titik-jemput, laporan
 │   │   └── layout.tsx, page.tsx
 │   ├── components/
 │   │   ├── ui/                 # komponen shadcn/ui hasil generate
-│   │   └── shared/             # komponen shared khusus app
+│   │   └── shared/             # tabel, grafik, peta, form
 │   ├── lib/                    # typed API client wrapper, TanStack Query client, utils
-│   ├── hooks/                  # contoh: useAuth
+│   ├── hooks/                  # contoh: useAuth, useSaldo
 │   ├── styles/globals.css
 │   ├── package.json
 │   └── tsconfig.json
 │
 ├── packages/
-│   └── shared/                # Zod schema & TypeScript types yang di-share backend/frontend, plus konstanta (kategori sampah, role)
+│   └── shared/                # Zod schema & TypeScript types yang di-share, plus konstanta (role, metode, status)
 │
-├── docs/                      # brainstorming.md, architecture.md (versi EN & ID)
+├── docs/                      # brainstorming, architecture (EN & ID), rubrik.csv, user-story.csv
 ├── README.md
 └── package.json                # root npm workspaces: "workspaces": ["backend", "frontend", "packages/*"]
 ```
 
 ## Open Items
 
-- Metode auth (session vs JWT) belum final.
-- Metode tarik saldo (transfer bank, e-wallet, ambil tunai) belum final.
-- Multi-cabang belum masuk scope (stretch goal potensial).
-- Batasan rubrik dari dosen (fitur wajib, deadline, format submit) belum dikasih tau semua.
+- Mekanisme auth: JWT di httpOnly cookie (rekomendasi) atau session.
+- Pencairan e-wallet: transfer manual oleh petugas dulu, payment gateway bisa jadi tambahan nanti.
 
 ## Laporan Proyek
 
