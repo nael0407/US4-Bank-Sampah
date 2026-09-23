@@ -2,66 +2,64 @@
 
 ## 1. Overview
 
-Web app for "bank sampah" (trash bank) — a community system where residents deposit sorted waste and get credited a balance, which they can later withdraw. University group project (4 members). Stack: Express.js/PostgreSQL backend, Next.js frontend — see Tech Stack section below.
+User story **US4 — Bank sampah: automatic deposit & balance recording**. A neighborhood-level (RW) bank sampah records every deposit by hand in a paper savings book: waste type, weight, value, then adds it all up into each nasabah's balance, which can be withdrawn as cash at any time. Manual bookkeeping is error-prone when staff serve many nasabah at once, and a lost or damaged book makes a balance untraceable.
+
+This app digitizes the whole flow: petugas weigh and enter deposits, each nasabah's balance accumulates automatically as a ledger, and nasabah can check their own balance and request withdrawals.
+
+University group project (4 members). Mandatory stack per the grading rubric: ExpressJS, MongoDB, Next.js.
 
 ## 2. User Roles
 
 ### Nasabah (resident/customer)
-- Deposits sorted waste
-- Holds a balance credited from deposits
-- Withdraws balance
-- Buys/sells "paket" (packages) in the marketplace
+- Registers an account
+- Checks balance and deposit/ledger history
+- Requests withdrawals (cash or e-wallet)
+- Views pickup points & schedule on a map
 
-### Admin / Petugas (bank sampah staff)
-- Records deposits
-- Sets waste prices per type
-- Sets package prices
-- Approves withdrawals
-- Manages packages, views reports
+### Petugas (bank sampah staff)
+- Records weigh-in results as deposits
+- Processes withdrawal requests (approve/reject)
+- Can cancel a wrong deposit (creates a correction entry)
 
-### Pengepul / Pembeli (collector/buyer)
-- Buys packages from Nasabah or from the bank sampah
-- Browses marketplace, views purchase history
+### Admin (manager)
+- Sets waste types and price per kg (prices can change anytime)
+- Manages user accounts (nasabah & petugas)
+- Manages pickup points & schedule
+- Views reports
+
+Role differences are where authorization is enforced on the API.
 
 ## 3. Core Features
 
-- **Setor sampah (deposit waste):** Nasabah deposits pre-sorted waste, gets balance credited.
-- **Saldo & tarik saldo (balance & withdrawal):** Nasabah can withdraw accumulated balance.
-- **Daftar harga sampah (waste price list):** Admin manages price per kg per waste type.
-- **Paket (packages):** Waste bundled by category (mixed-category bundles, e.g. "electronics package," "organic package") — not just single-type bundles.
-- **Trading paket:** Packages can be bought/sold:
-  - Nasabah ↔ Pengepul
-  - Bank sampah ↔ Pengepul
-  - Nasabah ↔ Nasabah
-  - Prices are fixed by admin (no bidding/negotiation)
-  - Single-location bank sampah — no multi-branch trading
-- **Laporan/statistik (reports):** Total waste collected, environmental impact, nasabah balances.
+- **Waste types & prices:** each type has its own price per kg (e.g. PET plastic, cardboard, paper, cans, glass bottles). Prices can change anytime.
+- **Deposit (setoran):** date, nasabah, and line items of waste type × weight × price. The total is credited to the nasabah's balance as a ledger entry. Price is snapshotted per item, so later price changes don't rewrite history.
+- **Balance & ledger:** every balance change is a ledger row — the balance is always traceable, no paper book to lose.
+- **Withdrawal:** nasabah requests cash or e-wallet payout; petugas processes it.
+- **Reports:** total kg and value per waste type per period, total withdrawals, balance in circulation.
+- **Pickup points & schedule (value-add):** map (Leaflet) of pickup points with their schedule.
+- **Automatic email (value-add):** nasabah gets an email when a deposit is recorded or a withdrawal status changes.
 
 ## 4. Rough Page/Screen List per Role
 
 **Nasabah**
-- Login/Register
-- Dashboard (balance overview)
-- Setor Sampah (deposit form)
-- Riwayat Transaksi (transaction history)
-- Marketplace Paket (browse/buy/sell packages)
-- Tarik Saldo (withdrawal)
+- Login / Register
+- Dashboard (balance, chart, latest deposits)
+- Riwayat (deposit & ledger history)
+- Tarik Saldo (withdrawal request + status)
+- Jadwal Jemput (pickup map & schedule)
 - Profil
 
-**Admin/Petugas**
-- Dashboard Admin
-- Kelola Nasabah (manage residents)
-- Catat Setoran (record deposits)
-- Kelola Harga Sampah (manage waste prices)
-- Kelola Paket (manage packages)
-- Approve Tarik Saldo (approve withdrawals)
-- Laporan (reports)
+**Petugas**
+- Dashboard (today's deposits, pending withdrawals)
+- Setoran (record new deposit, deposit list)
+- Penarikan (process withdrawal requests)
 
-**Pengepul/Pembeli**
+**Admin**
 - Dashboard
-- Marketplace Paket (browse/buy)
-- Riwayat Pembelian (purchase history)
-- Profil
+- Jenis Sampah (waste types & prices)
+- Pengguna (manage nasabah & petugas)
+- Titik Jemput (manage pickup points & schedule)
+- Laporan (reports)
 
 ## 5. Team Notes
 
@@ -73,18 +71,18 @@ Web app for "bank sampah" (trash bank) — a community system where residents de
 ## 6. Tech Stack
 
 - **Backend:** Express.js (TypeScript) on Railway
-  - ORM: Prisma
+  - ODM: Mongoose
   - Validation: Zod
-  - Auth: session or JWT-based (method TBD)
-- **Database:** PostgreSQL on Railway
+  - Password hashing: bcrypt
+- **Database:** MongoDB Atlas (free tier, replica set → transactions supported)
 - **Frontend:** Next.js (App Router) + TypeScript, on Vercel
   - Styling/UI: Tailwind CSS + shadcn/ui
   - Data fetching: TanStack Query (React Query)
-- **Repo shape:** monorepo, `backend/` (Express/Prisma) + `frontend/` (Next.js) — matches the 2+2 team split.
+  - Map: Leaflet (react-leaflet)
+- **Email:** Nodemailer / Resend
+- **Repo shape:** monorepo, `backend/` + `frontend/` + `packages/shared` — matches the 2+2 team split.
 
 ## 7. Open Questions / TODO
 
-- Auth method (session, JWT, etc.)?
-- Withdrawal method — bank transfer, e-wallet, cash pickup?
-- Is multi-branch ever in scope, even as a stretch goal?
-- Any grading-rubric constraints not yet shared by the lecturer (required features, deadline, submission format)?
+- Auth mechanism: JWT in httpOnly cookie (recommended) vs session?
+- E-wallet payout: manual transfer by petugas, or real disbursement via payment gateway later?
