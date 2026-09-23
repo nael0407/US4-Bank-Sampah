@@ -68,8 +68,7 @@ Aplikasi web bank sampah — sistem komunitas di mana warga menyetor sampah ters
 4 anggota tim, pembagian role dev udah diputusin:
 
 - Member A, Member B — Frontend & UI/UX
-- Member C — Backend & Database
-- Adnan Abdul Majid (NIM 24/544058/TK/60471) — Backend & Database
+- Member C, Member D — Backend & Database
 
 ## 6. Tech Stack
 
