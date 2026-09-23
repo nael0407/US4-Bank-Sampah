@@ -1,0 +1,42 @@
+RUBRIK PENILAIAN — MODE REGULER,,,,,,,,
+"Berlaku bagi kelompok yang mengerjakan salah satu user story yang disediakan dengan techstack wajib, yaitu ExpressJS, MongoDB, serta React atau Next.js. Bobot total 100% terbagi menjadi Penilaian Umum 35%, Backend 30%, Frontend 30%, dan Penilaian Tambahan 5%. Kolom Bobot menunjukkan bobot aspek di dalam bagiannya sendiri, sehingga menjumlah 100% pada setiap bagian. Tanda ""—"" berarti skor level tersebut tidak digunakan.",,,,,,,,
+Kode,Aspek,Bobot,Skor 5,Skor 4,Skor 3,Skor 2,Skor 1,Catatan
+PENILAIAN UMUM  —  bobot bagian 35%,,,,,,,,
+G1,Ketepatan fitur,35%,Aplikasi menjawab seluruh kebutuhan pengguna dan dilengkapi fitur pendukung yang menambah kenyamanan pemakaian,Aplikasi menjawab seluruh kebutuhan pengguna sebagaimana tertulis pada user story,Aplikasi menjawab sebagian kebutuhan pengguna,"Aplikasi berusaha menjawab kebutuhan pengguna, tetapi penyelesaiannya kurang tepat sasaran",Aplikasi belum menjawab kebutuhan pengguna,Dinilai terhadap deskripsi permasalahan dan ketentuan sistem pada user story yang dikerjakan kelompok.
+G2,Kontribusi,30%,Mahasiswa mengerjakan seluruh bagian yang menjadi tanggung jawabnya sesuai pembagian kerja kelompok,—,Mahasiswa hanya mengerjakan sebagian dari tanggung jawab yang telah disepakati kelompok,—,—,"Merupakan nilai individu, sehingga anggota dalam satu kelompok dapat memperoleh nilai berbeda. Yang dinilai adalah kesesuaian kinerja dengan pembagian kerja, bukan banyaknya commit."
+G3,Alur pengembangan,10%,Pengerjaan berlangsung bertahap dan terstruktur sepanjang periode pengembangan,"Pengerjaan berlangsung kurang terstruktur, misalnya menumpuk menjelang tenggat",—,—,—,"Dinilai dari riwayat commit kelompok secara keseluruhan, bukan dari commit perorangan."
+G4,Presentasi,15%,Mahasiswa menjelaskan fitur-fitur utama aplikasi dengan runtut dan meyakinkan,Mahasiswa menjelaskan garis besar fitur utama secara singkat,—,—,Mahasiswa tidak mampu menjelaskan fitur yang dikembangkan,
+G5,Video presentasi,10%,Video memenuhi seluruh ketentuan yang ditetapkan,—,Video tidak memenuhi ketentuan yang ditetapkan,—,—,Durasi video kelompok paling lama 10 menit.
+BACKEND  —  bobot bagian 30%,,,,,,,,
+BE1,Penggunaan ExpressJS,20%,Backend dibangun menggunakan ExpressJS,—,—,—,—,Bersifat wajib pada mode reguler.
+BE2,Penggunaan MongoDB,20%,Data disimpan menggunakan basis data MongoDB,—,—,—,—,Bersifat wajib pada mode reguler.
+BE3,Operasi CRUD,30%,"Tersedia API untuk operasi tambah, baca, ubah, dan hapus data",—,—,—,—,
+BE4,Penyandian kata sandi,10%,Kata sandi dan informasi sensitif disimpan dalam bentuk tersandi menggunakan hashing,—,—,—,—,
+BE5,Perlindungan API,10%,Mahasiswa menerapkan strategi pengamanan API,—,—,—,—,Titik penerapan otorisasi mengikuti pembagian peran pada user story masing-masing.
+BE6,Ketepatan waktu pengumpulan,10%,Dikumpulkan tepat waktu,Terlambat kurang dari 30 menit,Terlambat 30 menit sampai 2 jam,Terlambat 2 jam sampai 6 jam,Terlambat lebih dari 6 jam,
+FRONTEND  —  bobot bagian 30%,,,,,,,,
+FE1,Penggunaan React atau Next.js,10%,"Struktur routing dan komponen tertata rapi, serta fitur React atau Next.js dipakai sesuai kebutuhan",—,Struktur kurang tertata dan terdapat beberapa kekeliruan dalam pemakaian fitur React atau Next.js,—,Aplikasi tidak berjalan karena masih terdapat galat,
+FE2,Penerjemahan desain ke antarmuka,20%,"Tampilan menarik, konsisten dengan rancangan, dan menyesuaikan diri dengan berbagai ukuran layar",Tampilan cukup sesuai dengan rancangan dan sebagian sudah menyesuaikan ukuran layar,Tampilan belum konsisten dan kurang menyesuaikan ukuran layar,Tampilan tidak sesuai rancangan dan terkesan kaku,Hanya berupa teks dengan tata letak yang tidak tertata,
+FE3,Frontend Best Practices,20%,"Komponen dapat dipakai ulang, berkas tertata, dan logika terpisah dari tampilan","Komponen sudah terpisah cukup baik, meski ada beberapa penyimpangan dari best practice",Logika masih bercampur dengan komponen sehingga sulit dipakai ulang,Seluruh kode ditulis dalam satu berkas,Tidak mengikuti standar penulisan sama sekali,
+FE4,Interaktivitas,10%,"Tersedia umpan balik visual yang lengkap, seperti indikator memuat, notifikasi, penanda galat, dan efek tunjuk","Interaktivitas dasar sudah ada, tetapi belum lengkap",Interaksi terbatas dan tidak konsisten antarhalaman,Interaksi ada seadanya,Tidak ada interaksi sama sekali,
+FE5,Konsumsi API dan validasi form,30%,"Data diambil dari API, masukan divalidasi secara lengkap, dan galat ditangani dengan baik","Pemanggilan API dan validasi sudah ada, tetapi belum lengkap","API hanya dipakai untuk mengambil data, dengan validasi yang minim","Data diambil dari API tanpa validasi, dan galat tidak ditangani",Data masih ditulis langsung di dalam kode tanpa memakai API,
+FE6,Ketepatan waktu pengumpulan,10%,Dikumpulkan tepat waktu,Terlambat kurang dari 30 menit,Terlambat 30 menit sampai 2 jam,Terlambat 2 jam sampai 6 jam,Terlambat lebih dari 6 jam,
+PENILAIAN TAMBAHAN  —  bobot bagian 5%,,,,,,,,
+G6,Integrasi fitur pihak ketiga,opsional,—,—,Kelompok berhasil mengintegrasikan fitur pihak ketiga ke dalam aplikasi yang dikembangkan,—,—,"Bersifat opsional. Diakui paling banyak 2 jenis fitur, dengan nilai maksimal 10 poin."
+,,,,,,,,
+PEMERIKSAAN BOBOT  —  setiap bagian harus berjumlah 100%,,,,,,,,
+,Penilaian Umum,100%,,,,,,
+,Backend,100%,,,,,,
+,Frontend,100%,,,,,,
+,,,,,,,,
+DAFTAR FITUR PIHAK KETIGA YANG DIAKUI SEBAGAI NILAI TAMBAH (G6),,,,,,,,
+No,Jenis fitur,,,,,,,
+1,Penyimpanan berkas di Google Drive,,,,,,,
+2,Pengiriman email otomatis,,,,,,,
+3,Payment Gateway,,,,,,,
+4,Penggunaan cache pada backend,,,,,,,
+5,Deployment selain Vercel,,,,,,,
+6,Masuk melalui akun Google (OAuth2),,,,,,,
+7,"API peta, misalnya Leaflet atau Google Maps",,,,,,,
+8,API chatbot,,,,,,,
+9,API lain yang relevan dengan permasalahan,,,,,,,
