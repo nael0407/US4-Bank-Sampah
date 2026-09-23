@@ -63,14 +63,12 @@ Aplikasi web bank sampah — sistem komunitas di mana warga menyetor sampah ters
 - Riwayat Pembelian
 - Profil
 
-## 5. Catatan Tim (opsional/belum final)
+## 5. Catatan Tim
 
-4 anggota tim, pembagian role dev belum diputusin. Ini cuma contoh gimana *bisa* dibagi — bukan keputusan final:
+4 anggota tim, pembagian role dev udah diputusin:
 
-- Member A — Backend (Express.js, API, DB)
-- Member B — Frontend/UI
-- Member C — Database/QA
-- Member D — PM/Docs/Integration
+- Member A, Member B — Frontend & UI/UX
+- Member C, Member D — Backend & Database
 
 ## 6. Open Questions / TODO
 
