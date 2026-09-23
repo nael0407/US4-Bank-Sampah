@@ -79,7 +79,7 @@ Role differences are where authorization is enforced on the API.
   - Styling/UI: Tailwind CSS + shadcn/ui
   - Data fetching: TanStack Query (React Query)
   - Map: Leaflet (react-leaflet)
-- **Email:** Nodemailer / Resend
+- **Email:** SendGrid (`@sendgrid/mail`)
 - **Repo shape:** monorepo, `backend/` + `frontend/` + `packages/shared` — matches the 2+2 team split.
 
 ## 7. Open Questions / TODO
