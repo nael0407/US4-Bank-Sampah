@@ -2,7 +2,9 @@
 
 ## 1. System Overview
 
-Client-server architecture: a Next.js frontend talks to an Express.js REST API backend, which persists data in PostgreSQL through Prisma. Single monorepo, managed with npm workspaces, split into `backend/`, `frontend/`, and a shared `packages/shared` package for types/schemas used by both sides.
+Client-server architecture for **US4 — Bank sampah: automatic deposit & balance recording**. A Next.js frontend talks to an Express.js REST API, which stores data in MongoDB (Atlas) through Mongoose. Single monorepo managed with npm workspaces: `backend/`, `frontend/`, and `packages/shared` for schemas/types used by both sides.
+
+Three roles — **Nasabah**, **Petugas**, **Admin** — each with its own permissions; the API enforces them on every route.
 
 ## 2. Architecture Diagram
 
@@ -10,63 +12,71 @@ Client-server architecture: a Next.js frontend talks to an Express.js REST API b
 flowchart LR
     subgraph Users
         N[Nasabah]
-        A[Admin / Petugas]
-        P[Pengepul]
+        PT[Petugas]
+        A[Admin]
     end
 
     subgraph FE["frontend/ — Next.js (Vercel)"]
         UI[App Router Pages]
         Comp[Components / shadcn UI]
         RQ[TanStack Query]
+        MAP[Leaflet Map]
     end
 
     subgraph BE["backend/ — Express (Railway)"]
+        MW[Auth + Role Middleware]
         RT[Routes]
         CT[Controllers]
         SV[Services]
-        PR[Prisma Client]
+        MD[Mongoose Models]
     end
 
-    DB[(PostgreSQL — Railway)]
+    DB[(MongoDB Atlas)]
+    MAIL[Email Service]
     SH["packages/shared\nZod schemas & types"]
 
     N --> UI
+    PT --> UI
     A --> UI
-    P --> UI
     UI --> Comp
     UI --> RQ
-    RQ -->|REST fetch| RT
-    RT --> CT --> SV --> PR --> DB
+    UI --> MAP
+    RQ -->|REST fetch| MW
+    MW --> RT --> CT --> SV --> MD --> DB
+    SV -->|notifications| MAIL
 
     SH -.-> FE
     SH -.-> BE
 ```
 
-## 3. Request Flow
+## 3. Request Flow — Petugas Records a Deposit
 
 ```mermaid
 sequenceDiagram
-    participant U as Nasabah (Browser)
+    participant PT as Petugas (Browser)
     participant FE as Next.js
-    participant RT as Express Route
-    participant CT as Controller
-    participant SV as Service
-    participant DB as PostgreSQL (Prisma)
+    participant MW as Auth Middleware
+    participant CT as Setoran Controller
+    participant SV as Setoran Service
+    participant DB as MongoDB (Mongoose)
+    participant EM as Email Service
 
-    U->>FE: Submit "Setor Sampah" form
-    FE->>RT: POST /api/setoran (fetch)
-    RT->>RT: Validate body (Zod)
-    RT->>CT: forward request
+    PT->>FE: Submit deposit form (nasabah, items)
+    FE->>MW: POST /api/setoran (fetch)
+    MW->>MW: Verify token + role = PETUGAS
+    MW->>CT: forward request
+    CT->>CT: Validate body (Zod)
     CT->>SV: createSetoran(data)
-    SV->>DB: prisma.setoran.create(...)
-    DB-->>SV: created record
-    SV-->>CT: result
-    CT-->>RT: response payload
-    RT-->>FE: 201 JSON (saldo updated)
-    FE-->>U: show updated saldo
+    SV->>DB: read current prices per waste type
+    SV->>DB: transaction: insert setoran, add saldo, insert ledger row
+    DB-->>SV: committed
+    SV-)EM: send "deposit recorded" email to nasabah
+    SV-->>CT: setoran + new saldo
+    CT-->>FE: 201 JSON
+    FE-->>PT: success toast, receipt shown
 ```
 
-Validation happens at the route boundary via Zod schemas (shared with the frontend through `packages/shared`), so both sides agree on the same request/response shape.
+Validation happens with Zod schemas shared with the frontend through `packages/shared`, so both sides agree on the same request/response shape.
 
 ## 4. Repo Layout
 
@@ -76,21 +86,22 @@ paw/
 ├── frontend/
 ├── packages/
 │   └── shared/
-├── docs/                (brainstorming.md, architecture.md + .id.md versions)
+├── docs/                (brainstorming, architecture, rubric, user story)
 └── package.json        (npm workspaces root)
 ```
 
-## 5. `backend/` — Express (layered: routes → controllers → services → Prisma)
+## 5. `backend/` — Express (layered: routes → controllers → services → models)
 
 ```
 backend/
 ├── src/
-│   ├── routes/          (nasabah.routes.ts, admin.routes.ts, paket.routes.ts, auth.routes.ts, laporan.routes.ts)
+│   ├── routes/          (auth, users, jenis-sampah, setoran, penarikan, saldo, laporan, titik-jemput .routes.ts)
 │   ├── controllers/     (one per route group, parses request, calls service, sends response)
-│   ├── services/        (business logic: setor sampah, saldo, trading paket, calls Prisma)
-│   ├── middlewares/     (auth, error handler, Zod request validation)
-│   ├── prisma/          (schema.prisma, migrations/)
-│   ├── lib/              (Prisma client singleton, env/config loader)
+│   ├── services/        (business logic: price snapshot, saldo & ledger, withdrawals, reports, email)
+│   ├── models/          (Mongoose schemas: User, JenisSampah, Setoran, Penarikan, MutasiSaldo, TitikJemput)
+│   ├── middlewares/     (auth, role guard, error handler, Zod request validation)
+│   ├── lib/              (db.ts mongoose connect, mailer.ts, env/config loader)
+│   ├── seed.ts           (initial admin + sample waste types)
 │   ├── app.ts            (Express app + middleware wiring)
 │   └── server.ts         (entrypoint, starts the HTTP server)
 ├── .env
@@ -104,207 +115,176 @@ backend/
 frontend/
 ├── app/
 │   ├── (auth)/           (login, register)
-│   ├── nasabah/          (dashboard, setor-sampah, riwayat, marketplace, tarik-saldo, profil)
-│   ├── admin/            (dashboard, nasabah, setoran, harga-sampah, paket, tarik-saldo, laporan)
-│   ├── pengepul/         (dashboard, marketplace, riwayat)
+│   ├── nasabah/          (dashboard, riwayat, tarik-saldo, jadwal-jemput, profil)
+│   ├── petugas/          (dashboard, setoran, penarikan)
+│   ├── admin/            (dashboard, jenis-sampah, pengguna, titik-jemput, laporan)
 │   └── layout.tsx, page.tsx
 ├── components/
 │   ├── ui/               (shadcn/ui generated components)
-│   └── shared/           (app-specific shared components)
+│   └── shared/           (app-specific shared components: tables, charts, map, forms)
 ├── lib/                  (typed API client wrapper, TanStack Query client, utils)
-├── hooks/                (e.g. useAuth)
+├── hooks/                (e.g. useAuth, useSaldo)
 ├── styles/globals.css
 ├── package.json
 └── tsconfig.json
 ```
 
-The frontend calls the Express API directly (no Next.js API-route proxy layer).
+The frontend calls the Express API directly (no Next.js API-route proxy layer). Route groups per role are protected on the client too (redirect if role mismatch), but the API is the real guard.
 
 ## 7. `packages/shared/`
 
-Zod schemas + inferred TypeScript types for API request/response shapes, plus shared constants (waste categories, roles). Imported by both `backend/` and `frontend/` as an npm workspace package — keeps the two sub-teams' contracts in sync without duplicating types.
+Zod schemas + inferred TypeScript types for API request/response shapes, plus shared constants (roles, withdrawal methods, statuses). Imported by both `backend/` and `frontend/` as an npm workspace package — keeps the two sub-teams' contracts in sync without duplicating types.
 
 ## 8. Root Level
 
 - `package.json` — npm workspaces root: `"workspaces": ["backend", "frontend", "packages/*"]`
 - `README.md` stays at root
-- `docs/` — `brainstorming.md`/`brainstorming.id.md`, `architecture.md`/`architecture.id.md`
+- `docs/` — `brainstorming.md`/`.id.md`, `architecture.md`/`.id.md`, `rubrik.csv`, `user-story.csv`
 
 ## 9. Detailed Features
 
-Money is stored in **Rupiah**. Paket trades are paid **with in-app saldo**. At setoran, each item is either:
-- **Jual langsung** — bank buys it, nasabah's saldo is credited, the waste becomes **bank stock**.
-- **Simpan sebagai stok** — stays as the **nasabah's stock** at the bank, sellable later as a paket.
+Money is stored in **Rupiah** as integers. Every balance change goes through the ledger.
 
 ### 9.1 Auth & Accounts
-- **Roles:** Nasabah, Pengepul (self-register), Admin (seeded).
-- **Rules:** passwords hashed (bcrypt); inactive users can't log in.
+- **Roles:** Nasabah (self-register), Petugas (created by admin), Admin (seeded).
+- **Rules:** passwords hashed with bcrypt; inactive users can't log in; every protected route checks token + role.
 - **Endpoints:** `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
-- **Pages:** `(auth)/login`, `(auth)/register`, `*/profil`
+- **Pages:** `(auth)/login`, `(auth)/register`, `nasabah/profil`
 
 ### 9.2 Manage Users (Admin)
-- List, search, deactivate nasabah/pengepul.
-- **Endpoints:** `GET /api/users`, `PATCH /api/users/:id`
-- **Pages:** `admin/nasabah`
+- Full CRUD for nasabah & petugas accounts, search, deactivate.
+- **Endpoints:** `GET /api/users`, `GET /api/users/:id`, `POST /api/users`, `PATCH /api/users/:id`, `DELETE /api/users/:id`
+- **Pages:** `admin/pengguna`
 
 ### 9.3 Waste Types & Prices (Admin)
-- Each waste type belongs to a category (e.g. Plastik, Kertas, Logam, Elektronik, Organik).
-- Two prices per kg: `harga_beli` (bank buys from nasabah at setoran) and `harga_jual` (marketplace paket price).
-- **Endpoints:** `GET /api/jenis-sampah`, `POST /api/jenis-sampah`, `PATCH /api/jenis-sampah/:id`, `DELETE /api/jenis-sampah/:id`
-- **Pages:** `admin/harga-sampah`
+- Each type has a price per kg (e.g. PET plastic, cardboard, paper, cans, glass bottles). Price can change anytime; deposits keep the price they were recorded with.
+- **Endpoints:** `GET /api/jenis-sampah`, `POST /api/jenis-sampah`, `PATCH /api/jenis-sampah/:id`, `DELETE /api/jenis-sampah/:id` (soft delete if already used)
+- **Pages:** `admin/jenis-sampah`
 
-### 9.4 Deposit Waste (Setor Sampah)
-- Admin records a setoran for a nasabah: list of items (waste type + weight in kg) and a mode per item (Jual / Simpan).
-- Price is **snapshotted** on each item at deposit time, so later price changes don't rewrite history.
-- Jual → `saldo += berat × harga_beli`, bank stock +. Simpan → nasabah stock +.
-- **Endpoints:** `POST /api/setoran` (admin), `GET /api/setoran` (admin: all, nasabah: own)
-- **Pages:** `admin/setoran`, `nasabah/setor-sampah` (history + current stock)
+### 9.4 Deposit (Petugas)
+- Petugas picks a nasabah and adds line items: waste type + weight (kg). Server looks up the current price, snapshots it on each item, computes `subtotal = berat × hargaPerKg` and the total.
+- In **one MongoDB transaction**: insert setoran, add total to nasabah saldo, insert a `SETORAN` ledger row.
+- Wrong entry → cancel the setoran: status `DIBATALKAN` + a `KOREKSI` ledger row that reverses the amount (ledger is never edited).
+- **Endpoints:** `POST /api/setoran`, `GET /api/setoran` (petugas/admin: all, nasabah: own), `GET /api/setoran/:id`, `PATCH /api/setoran/:id/batal`
+- **Pages:** `petugas/setoran`, `nasabah/riwayat`
 
 ### 9.5 Balance & Ledger
-- Every saldo change writes a `MutasiSaldo` row (type: SETORAN, BELI, JUAL, TARIK, TOPUP) with `saldo_setelah` — balance is always auditable.
-- **Endpoints:** `GET /api/saldo`, `GET /api/saldo/mutasi`
-- **Pages:** `nasabah/dashboard`, `nasabah/riwayat`, `pengepul/dashboard`
+- `mutasiSaldo` rows: type `SETORAN`, `PENARIKAN`, or `KOREKSI`, signed amount, `saldoSetelah`. A nasabah's saldo can always be rebuilt from the ledger.
+- **Endpoints:** `GET /api/saldo` (own), `GET /api/saldo/mutasi`
+- **Pages:** `nasabah/dashboard`, `nasabah/riwayat`
 
-### 9.6 Withdraw (Tarik Saldo)
-- Nasabah requests an amount ≤ saldo minus other pending requests → status `PENDING`.
-- Admin approves (saldo deducted, ledger row) or rejects. Payout method still TBD (see Open Items).
-- **Endpoints:** `POST /api/penarikan`, `GET /api/penarikan`, `PATCH /api/penarikan/:id/approve`, `PATCH /api/penarikan/:id/reject`
-- **Pages:** `nasabah/tarik-saldo`, `admin/tarik-saldo`
+### 9.6 Withdrawal
+- Nasabah requests an amount ≤ saldo minus other pending requests; method `TUNAI` (cash) or `E_WALLET` (provider + number).
+- Petugas approves (saldo deducted + `PENARIKAN` ledger row, in one transaction) or rejects with a note. Email sent on status change.
+- **Endpoints:** `POST /api/penarikan`, `GET /api/penarikan`, `PATCH /api/penarikan/:id/setujui`, `PATCH /api/penarikan/:id/tolak`
+- **Pages:** `nasabah/tarik-saldo`, `petugas/penarikan`
 
-### 9.7 Top-up (Pengepul)
-- Pengepul needs saldo to buy paket: requests a top-up, pays the bank outside the app, admin confirms → saldo credited.
-- **Endpoints:** `POST /api/topup`, `GET /api/topup`, `PATCH /api/topup/:id/approve`
-- **Pages:** `pengepul/dashboard`, `admin/tarik-saldo` (combined requests view)
+### 9.7 Reports (Admin)
+- Total kg and value per waste type per period, total withdrawals, balance in circulation, most active nasabah, charts per period.
+- **Endpoints:** `GET /api/laporan/ringkasan?from=&to=`, `GET /api/laporan/per-jenis?from=&to=`
+- **Pages:** `admin/laporan`, `admin/dashboard`
 
-### 9.8 Paket
-- **Nasabah** bundles their own stock: one category, weight per item ≤ their stock; that stock is locked while the paket is listed.
-- **Admin** bundles bank stock the same way (bank-owned paket).
-- Admin verifies each paket → `TERSEDIA`. Price = Σ(berat × harga_jual), fixed — no negotiation.
-- Status flow: `MENUNGGU_VERIFIKASI → TERSEDIA → TERJUAL`, or `DIBATALKAN` (owner cancels before sale → stock unlocked).
-- **Endpoints:** `POST /api/paket`, `GET /api/paket` (filter by kategori/status), `GET /api/paket/:id`, `PATCH /api/paket/:id/verifikasi`, `DELETE /api/paket/:id`
-- **Pages:** `nasabah/marketplace`, `admin/paket`
+### 9.8 Pickup Points & Schedule (value-add, Leaflet)
+- Admin manages pickup points: name, address, GeoJSON coordinates, weekly schedule (day + time range). Nasabah sees them on a map.
+- **Endpoints:** `GET /api/titik-jemput`, `POST /api/titik-jemput`, `PATCH /api/titik-jemput/:id`, `DELETE /api/titik-jemput/:id`
+- **Pages:** `admin/titik-jemput`, `nasabah/jadwal-jemput`
 
-### 9.9 Buy Paket (Trading)
-- Allowed pairs: Nasabah → Pengepul, Nasabah → Nasabah, Bank → Pengepul. Can't buy your own paket.
-- Buyer saldo must be ≥ price. Everything runs in **one Prisma `$transaction`**: buyer saldo −, seller saldo + (bank-owned → bank cash account), paket `TERJUAL`, locked stock removed, two ledger rows — no half-finished trades.
-- Physical pickup happens at the bank sampah.
-- **Endpoints:** `POST /api/paket/:id/beli`, `GET /api/pembelian`
-- **Pages:** `nasabah/marketplace`, `pengepul/marketplace`, `pengepul/riwayat`
+### 9.9 Automatic Email (value-add)
+- Nasabah receives an email when a deposit is recorded and when a withdrawal is approved/rejected. Sent after the DB transaction commits; a mail failure never rolls back the transaction.
+- **Where:** `backend/src/lib/mailer.ts`, called from setoran & penarikan services.
 
-### 9.10 Reports
-- **Admin:** total kg per type/category per period, total saldo in circulation, transaction count, estimated kg diverted from landfill.
-- **Nasabah:** personal totals (kg deposited, saldo earned).
-- **Endpoints:** `GET /api/laporan/ringkasan?from=&to=`
-- **Pages:** `admin/laporan`, `admin/dashboard`, `nasabah/dashboard`
+### 9.10 Supporting UX
+- Dashboard per role, saldo/deposit charts, search & filter on tables, loading skeletons, toast notifications, inline form errors, responsive layout.
 
-## 10. Data Model
+## 10. Data Model (MongoDB collections)
 
 ```mermaid
 erDiagram
-    User ||--o{ Setoran : "deposits"
-    User ||--o{ Stok : "owns"
-    User ||--o{ Paket : "sells"
-    User ||--o{ TransaksiPaket : "buys"
-    User ||--o{ Penarikan : "requests"
-    User ||--o{ TopUp : "requests"
-    User ||--o{ MutasiSaldo : "has"
-    Kategori ||--o{ JenisSampah : "groups"
-    Kategori ||--o{ Paket : "categorizes"
-    Setoran ||--|{ SetoranItem : "contains"
-    JenisSampah ||--o{ SetoranItem : "of"
-    JenisSampah ||--o{ Stok : "of"
-    Paket ||--|{ PaketItem : "contains"
-    JenisSampah ||--o{ PaketItem : "of"
-    Paket ||--o| TransaksiPaket : "sold in"
+    USERS ||--o{ SETORAN : "nasabah deposits"
+    USERS ||--o{ SETORAN : "petugas records"
+    USERS ||--o{ PENARIKAN : "requests"
+    USERS ||--o{ MUTASI_SALDO : "has"
+    JENIS_SAMPAH ||--o{ SETORAN : "referenced in items"
+    SETORAN ||--o{ MUTASI_SALDO : "creates"
+    PENARIKAN ||--o| MUTASI_SALDO : "creates"
 
-    User {
-        int id PK
+    USERS {
+        ObjectId _id PK
         string nama
         string email
-        string password_hash
-        enum role "NASABAH|ADMIN|PENGEPUL"
-        int saldo "rupiah"
+        string passwordHash
+        string role "NASABAH|PETUGAS|ADMIN"
+        int saldo "rupiah, nasabah only"
+        string noHp
+        string alamat
         boolean aktif
     }
-    Kategori {
-        int id PK
+    JENIS_SAMPAH {
+        ObjectId _id PK
         string nama
+        int hargaPerKg "rupiah"
+        boolean aktif
     }
-    JenisSampah {
-        int id PK
-        int kategori_id FK
+    SETORAN {
+        ObjectId _id PK
+        ObjectId nasabahId FK
+        ObjectId petugasId FK
+        date tanggal
+        array items "jenisId, namaJenis, berat, hargaPerKg, subtotal"
+        int total
+        string status "AKTIF|DIBATALKAN"
+    }
+    PENARIKAN {
+        ObjectId _id PK
+        ObjectId nasabahId FK
+        int jumlah
+        string metode "TUNAI|E_WALLET"
+        object ewallet "provider, nomor"
+        string status "PENDING|DISETUJUI|DITOLAK"
+        ObjectId diprosesOleh FK
+        string catatan
+    }
+    MUTASI_SALDO {
+        ObjectId _id PK
+        ObjectId nasabahId FK
+        string tipe "SETORAN|PENARIKAN|KOREKSI"
+        int jumlah "signed"
+        int saldoSetelah
+        ObjectId refId "setoran or penarikan"
+        date tanggal
+    }
+    TITIK_JEMPUT {
+        ObjectId _id PK
         string nama
-        int harga_beli "rupiah per kg"
-        int harga_jual "rupiah per kg"
-    }
-    Setoran {
-        int id PK
-        int nasabah_id FK
-        int petugas_id FK
-        datetime tanggal
-        int total_saldo
-    }
-    SetoranItem {
-        int id PK
-        int setoran_id FK
-        int jenis_id FK
-        decimal berat "kg"
-        enum mode "JUAL|SIMPAN"
-        int harga_satuan "snapshot"
-    }
-    Stok {
-        int id PK
-        int owner_id FK "null = bank"
-        int jenis_id FK
-        decimal berat "kg"
-        decimal berat_terkunci "kg"
-    }
-    Paket {
-        int id PK
-        int penjual_id FK "null = bank"
-        int kategori_id FK
-        enum status
-        int harga_total
-    }
-    PaketItem {
-        int id PK
-        int paket_id FK
-        int jenis_id FK
-        decimal berat "kg"
-    }
-    TransaksiPaket {
-        int id PK
-        int paket_id FK
-        int pembeli_id FK
-        int harga
-        datetime tanggal
-    }
-    Penarikan {
-        int id PK
-        int user_id FK
-        int jumlah
-        enum status "PENDING|APPROVED|REJECTED"
-    }
-    TopUp {
-        int id PK
-        int user_id FK
-        int jumlah
-        enum status "PENDING|APPROVED|REJECTED"
-    }
-    MutasiSaldo {
-        int id PK
-        int user_id FK
-        enum tipe "SETORAN|BELI|JUAL|TARIK|TOPUP"
-        int jumlah
-        int saldo_setelah
-        datetime tanggal
+        string alamat
+        object lokasi "GeoJSON Point"
+        array jadwal "hari, jamMulai, jamSelesai"
     }
 ```
 
-- Money as `Int` rupiah (no floats → no rounding bugs). Weight as `Decimal(10,2)` kg.
-- `Stok` unique on (`owner_id`, `jenis_id`); `owner_id = null` means bank stock.
+- Setoran items are **embedded** (always read with their setoran) and carry a price snapshot.
+- Money as integer rupiah (no floats → no rounding bugs); weight as number in kg (2 decimals).
+- Saldo changes + ledger rows are written in one Mongoose session transaction (Atlas replica set).
 
-## 11. Open Items (carried over from brainstorming)
+## 11. Rubric Mapping
 
-- **Auth method** still TBD (JWT vs session) — the layered structure supports either via `backend/src/middlewares/auth.middleware.ts` without changing the rest of the architecture.
-- Other open questions (withdrawal method, multi-branch, grading-rubric constraints) tracked in `brainstorming.md` — not re-decided here.
+| Rubric | Where it's covered |
+|---|---|
+| BE1 ExpressJS | `backend/` Express app |
+| BE2 MongoDB | MongoDB Atlas + Mongoose models (§10) |
+| BE3 CRUD | Users, waste types, pickup points (full CRUD); setoran & penarikan (create/read/update status) |
+| BE4 Hashing | bcrypt password hash (§9.1) |
+| BE5 API protection | Auth + role middleware per route: petugas → setoran/penarikan, nasabah → own saldo/withdrawal, admin → prices/users/reports |
+| FE1 Next.js | App Router, route group per role (§6) |
+| FE2 Design → UI | shadcn/ui + Tailwind, responsive layouts |
+| FE3 Best practices | Shared components, hooks, API client in `lib/`, logic separated from UI |
+| FE4 Interactivity | Loading states, toasts, error states, hover effects (§9.10) |
+| FE5 API + form validation | TanStack Query + Zod schemas from `packages/shared` |
+| G1 Feature fit | All US4 requirements (§9.1–9.7) + supporting features |
+| G3 Dev flow | Small, frequent commits (repo commit rule) |
+| G6 Value-add | Leaflet map (§9.8), automatic email (§9.9) |
+
+## 12. Open Items
+
+- **Auth mechanism:** JWT in httpOnly cookie recommended (frontend on Vercel and backend on Railway are different domains → cookie needs `SameSite=None; Secure`), or session. Structure supports either via `backend/src/middlewares/auth.middleware.ts`.
+- **E-wallet payout:** manual transfer by petugas for now; real disbursement via payment gateway is a possible later add-on.
