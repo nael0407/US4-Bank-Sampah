@@ -32,7 +32,7 @@ flowchart LR
     end
 
     DB[(MongoDB Atlas)]
-    MAIL[Layanan Email]
+    MAIL[SendGrid Email API]
     SH["packages/shared\nZod schema & types"]
 
     N --> UI
@@ -59,7 +59,7 @@ sequenceDiagram
     participant CT as Setoran Controller
     participant SV as Setoran Service
     participant DB as MongoDB (Mongoose)
-    participant EM as Layanan Email
+    participant EM as SendGrid
 
     PT->>FE: Submit form setoran (nasabah, item)
     FE->>MW: POST /api/setoran (fetch)
@@ -100,7 +100,7 @@ backend/
 │   ├── services/        (business logic: snapshot harga, saldo & mutasi, penarikan, laporan, email)
 │   ├── models/          (schema Mongoose: User, JenisSampah, Setoran, Penarikan, MutasiSaldo, TitikJemput)
 │   ├── middlewares/     (auth, role guard, error handler, validasi request pakai Zod)
-│   ├── lib/              (db.ts koneksi mongoose, mailer.ts, config/env loader)
+│   ├── lib/              (db.ts koneksi mongoose, mailer.ts client SendGrid, config/env loader)
 │   ├── seed.ts           (admin awal + contoh jenis sampah)
 │   ├── app.ts            (setup Express app + middleware)
 │   └── server.ts         (entrypoint, jalanin HTTP server)
@@ -191,7 +191,8 @@ Uang disimpan dalam **Rupiah** sebagai bilangan bulat. Tiap perubahan saldo lewa
 
 ### 9.9 Email Otomatis (nilai tambah)
 - Nasabah dapet email pas setoran tercatat dan pas penarikan disetujui/ditolak. Dikirim setelah transaction DB commit; kalau email gagal, transaction gak di-rollback.
-- **Lokasi:** `backend/src/lib/mailer.ts`, dipanggil dari service setoran & penarikan.
+- **Provider:** SendGrid lewat `@sendgrid/mail` — API key di `SENDGRID_API_KEY`, alamat pengirim di `SENDGRID_FROM_EMAIL` (harus verified sender di SendGrid). Free tier cukup buat proyek ini.
+- **Lokasi:** `backend/src/lib/mailer.ts` (client SendGrid + template email), dipanggil dari service setoran & penarikan.
 
 ### 9.10 UX Pendukung
 - Dashboard per role, grafik saldo/setoran, search & filter di tabel, loading skeleton, notifikasi toast, pesan error di form, layout responsif.
