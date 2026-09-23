@@ -66,7 +66,7 @@ Sesuai stack wajib rubrik (ExpressJS, MongoDB, Next.js):
   - Styling/UI: Tailwind CSS + shadcn/ui
   - Data fetching: TanStack Query (React Query)
   - Peta: Leaflet (react-leaflet)
-- **Email:** Nodemailer / Resend
+- **Email:** SendGrid (`@sendgrid/mail`)
 - **Bentuk repo:** monorepo pakai npm workspaces — `backend/` + `frontend/` + `packages/shared`.
 - Frontend manggil Express API langsung (gak ada layer proxy Next.js API routes).
 
@@ -78,7 +78,7 @@ flowchart LR
     FE -->|REST fetch| MW[Middleware Auth + Role]
     MW --> RT[Routes] --> CT[Controllers] --> SV[Services] --> MD[Model Mongoose]
     MD --> DB[(MongoDB Atlas)]
-    SV -->|notifikasi| MAIL[Email]
+    SV -->|notifikasi| MAIL[SendGrid Email API]
     SH[packages/shared — Zod schema & types] -.-> FE
     SH -.-> MW
 ```
@@ -96,7 +96,7 @@ paw/
 │   │   ├── services/         # business logic: snapshot harga, saldo & mutasi, penarikan, laporan, email
 │   │   ├── models/           # schema Mongoose: User, JenisSampah, Setoran, Penarikan, MutasiSaldo, TitikJemput
 │   │   ├── middlewares/      # auth, role guard, error handler, validasi Zod
-│   │   ├── lib/               # db.ts (koneksi mongoose), mailer.ts, config/env loader
+│   │   ├── lib/               # db.ts (koneksi mongoose), mailer.ts (SendGrid), config/env loader
 │   │   ├── seed.ts            # admin awal + contoh jenis sampah
 │   │   ├── app.ts             # setup Express app + middleware
 │   │   └── server.ts          # entrypoint, jalanin HTTP server
