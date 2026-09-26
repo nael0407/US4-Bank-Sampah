@@ -18,7 +18,8 @@ async function kirimEmail(tujuan: string, subjek: string, html: string) {
   try {
     await sgMail.send({ to: tujuan, from: config.SENDGRID_FROM_EMAIL!, subject: subjek, html });
   } catch (error) {
-    console.error(`Gagal mengirim email ke ${tujuan}:`, error);
+    const pesan = error instanceof Error ? error.message : String(error);
+    console.error(`Gagal mengirim email ke ${tujuan}: ${pesan}`);
   }
 }
 
