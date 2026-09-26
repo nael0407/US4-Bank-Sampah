@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { config } from "./lib/config";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware";
 import { authRoutes } from "./routes/auth.routes";
+import { laporanRoutes } from "./routes/laporan.routes";
 import { saldoRoutes } from "./routes/saldo.routes";
 import { setoranRoutes } from "./routes/setoran.routes";
 import { titikJemputRoutes } from "./routes/titik-jemput.routes";
@@ -21,6 +22,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/laporan", laporanRoutes);
 app.use("/api/saldo", saldoRoutes);
 app.use("/api/setoran", setoranRoutes);
 app.use("/api/titik-jemput", titikJemputRoutes);
