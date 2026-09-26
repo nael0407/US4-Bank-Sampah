@@ -4,6 +4,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { config } from "./lib/config";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware";
+import { authRoutes } from "./routes/auth.routes";
 
 export const app = express();
 
@@ -15,6 +16,8 @@ app.get("/api/health", (_req, res) => {
   const databaseConnected = mongoose.connection.readyState === 1;
   res.json({ status: "ok", database: databaseConnected ? "terhubung" : "terputus" });
 });
+
+app.use("/api/auth", authRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
