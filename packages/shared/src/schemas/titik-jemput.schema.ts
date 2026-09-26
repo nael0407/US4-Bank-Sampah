@@ -14,16 +14,20 @@ const jadwalSchema = z
     path: ["jamSelesai"],
   });
 
-export const titikJemputSchema = z.object({
+const titikJemputBaseSchema = z.object({
   nama: z.string().trim().min(3, "Nama titik minimal 3 karakter"),
   alamat: z.string().trim().min(5, "Alamat minimal 5 karakter"),
   lokasi: z.object({
     lat: z.number().min(-90).max(90),
     lng: z.number().min(-180).max(180),
   }),
+  jadwal: z.array(jadwalSchema),
+});
+
+export const titikJemputSchema = titikJemputBaseSchema.extend({
   jadwal: z.array(jadwalSchema).default([]),
 });
 export type TitikJemputInput = z.infer<typeof titikJemputSchema>;
 
-export const updateTitikJemputSchema = titikJemputSchema.partial();
+export const updateTitikJemputSchema = titikJemputBaseSchema.partial();
 export type UpdateTitikJemputInput = z.infer<typeof updateTitikJemputSchema>;
