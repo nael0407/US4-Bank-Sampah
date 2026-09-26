@@ -6,7 +6,6 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   MONGODB_URI: z.string().min(1, "MONGODB_URI wajib diisi"),
   JWT_SECRET: z.string().min(16, "JWT_SECRET minimal 16 karakter"),
-  JWT_EXPIRES_IN: z.string().default("1d"),
   FRONTEND_URL: z.string().default("http://localhost:3000"),
   SENDGRID_API_KEY: z.string().optional(),
   SENDGRID_FROM_EMAIL: z.string().optional(),
