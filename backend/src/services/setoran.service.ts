@@ -1,6 +1,7 @@
 import { CreateSetoranInput, Role, SetoranQuery } from "@bank-sampah/shared";
 import { withTransaction } from "../lib/db";
 import { HttpError } from "../lib/http-error";
+import { sendSetoranEmail } from "../lib/mailer";
 import { buildPagination, skipFor } from "../lib/pagination";
 import { JenisSampahModel } from "../models/jenis-sampah.model";
 import { SetoranModel } from "../models/setoran.model";
@@ -37,7 +38,7 @@ export async function createSetoran(petugasId: string, input: CreateSetoranInput
   const items = await buildItemSetoran(input.items);
   const total = items.reduce((jumlah, item) => jumlah + item.subtotal, 0);
 
-  return withTransaction(async (session) => {
+  const hasil = await withTransaction(async (session) => {
     const [setoran] = await SetoranModel.create(
       [{ nasabahId: nasabah._id, petugasId, items, total }],
       { session },
@@ -53,6 +54,17 @@ export async function createSetoran(petugasId: string, input: CreateSetoranInput
 
     return { setoran, saldo };
   });
+
+  void sendSetoranEmail({
+    email: nasabah.email,
+    nama: nasabah.nama,
+    tanggal: hasil.setoran.tanggal,
+    items,
+    total,
+    saldo: hasil.saldo,
+  });
+
+  return hasil;
 }
 
 type PenggunaAktif = { id: string; role: Role };
