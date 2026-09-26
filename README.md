@@ -151,6 +151,19 @@ Kalau `SENDGRID_API_KEY` dan `SENDGRID_FROM_EMAIL` belum diisi, email gak dikiri
 
 Koleksi Postman ada di `docs/postman/bank-sampah.postman_collection.json` — import ke Postman, jalankan salah satu request Login, token otomatis tersimpan.
 
+## Deployment (Produksi)
+
+Backend dideploy ke **Railway** dan basis data menggunakan **MongoDB Atlas** (M0 free replica set).
+
+Panduan lengkap deployment, konfigurasi environment variables, CORS, dan cookie produksi dapat dibaca di:
+👉 **[Panduan Deployment Railway & Atlas (docs/deployment.md)](docs/deployment.md)**
+
+Perintah build dan start produksi:
+```bash
+npm run build    # build @bank-sampah/shared dan backend
+npm run start    # jalankan server produksi di Railway
+```
+
 ## Open Items
 
 - Mekanisme auth: JWT di httpOnly cookie (rekomendasi) atau session.
