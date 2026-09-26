@@ -15,7 +15,29 @@ import { usersRoutes } from "./routes/users.routes";
 
 export const app = express();
 
-app.use(cors({ origin: config.FRONTEND_URL, credentials: true }));
+app.set("trust proxy", 1);
+
+const allowedOrigins = config.FRONTEND_URL.split(",").map((origin) => origin.trim());
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        allowedOrigins.includes("*") ||
+        (origin.endsWith(".vercel.app") && allowedOrigins.some((url) => url.includes("vercel.app")));
+
+      if (isAllowed) {
+        return callback(null, true);
+      }
+
+      callback(new Error(`Akses CORS ditolak untuk origin: ${origin}`));
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 
