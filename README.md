@@ -128,6 +128,29 @@ paw/
 └── package.json                # root npm workspaces: "workspaces": ["backend", "frontend", "packages/*"]
 ```
 
+## Menjalankan Backend (Lokal)
+
+Butuh Node.js 22+ dan database MongoDB yang berupa replica set (MongoDB Atlas free tier udah replica set). Replica set wajib karena setoran dan penarikan pakai transaction.
+
+```bash
+npm install
+cp backend/.env.example backend/.env   # lalu isi MONGODB_URI dan JWT_SECRET
+npm run seed                           # bikin akun awal, jenis sampah, titik jemput contoh
+npm run dev:backend                    # API jalan di http://localhost:4000/api
+```
+
+Akun hasil seed:
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@banksampah.id | admin12345 |
+| Petugas | petugas@banksampah.id | petugas12345 |
+| Nasabah | nasabah@banksampah.id | nasabah12345 |
+
+Kalau `SENDGRID_API_KEY` dan `SENDGRID_FROM_EMAIL` belum diisi, email gak dikirim dan cuma muncul di log server.
+
+Koleksi Postman ada di `docs/postman/bank-sampah.postman_collection.json` — import ke Postman, jalankan salah satu request Login, token otomatis tersimpan.
+
 ## Open Items
 
 - Mekanisme auth: JWT di httpOnly cookie (rekomendasi) atau session.
