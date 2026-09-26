@@ -588,6 +588,170 @@
           }
         }
       ]
+    },
+    {
+      "name": "Jenis Sampah",
+      "item": [
+        {
+          "name": "Daftar Jenis Sampah",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Daftar Jenis Sampah (Hanya Aktif)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah?aktif=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah"
+              ],
+              "query": [
+                {
+                  "key": "aktif",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tambah Jenis Sampah (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"jenisSampahId\", pm.response.json().jenisSampah.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Minyak Jelantah\",\n  \"hargaPerKg\": 5000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Detail Jenis Sampah",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah",
+                "{{jenisSampahId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ubah Jenis Sampah (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah",
+                "{{jenisSampahId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hargaPerKg\": 6000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Hapus Jenis Sampah (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah/{{jenisSampahId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah",
+                "{{jenisSampahId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tambah Jenis Sampah - Gagal Validasi (400)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/jenis-sampah",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "jenis-sampah"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"X\",\n  \"hargaPerKg\": -100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
