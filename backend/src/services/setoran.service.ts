@@ -102,3 +102,30 @@ export async function getSetoranById(pengguna: PenggunaAktif, id: string) {
 
   return setoran;
 }
+
+export async function batalSetoran(penggunaId: string, id: string, alasan: string) {
+  return withTransaction(async (session) => {
+    const setoran = await SetoranModel.findOneAndUpdate(
+      { _id: id, status: "AKTIF" },
+      { status: "DIBATALKAN", dibatalkanOleh: penggunaId, alasanBatal: alasan },
+      { returnDocument: "after", session },
+    );
+
+    if (!setoran) {
+      const setoranAda = await SetoranModel.exists({ _id: id }).session(session);
+      throw setoranAda
+        ? new HttpError(400, "Setoran sudah dibatalkan sebelumnya")
+        : new HttpError(404, "Setoran tidak ditemukan");
+    }
+
+    const saldo = await applyMutasi(session, {
+      nasabahId: setoran.nasabahId,
+      tipe: "KOREKSI",
+      jumlah: -setoran.total,
+      refId: setoran._id,
+      keterangan: `Pembatalan setoran: ${alasan}`,
+    });
+
+    return { setoran, saldo };
+  });
+}
