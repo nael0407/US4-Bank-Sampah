@@ -1,6 +1,7 @@
-import { TipeMutasi } from "@bank-sampah/shared";
+import { MutasiQuery, TipeMutasi } from "@bank-sampah/shared";
 import { ClientSession, Types } from "mongoose";
 import { HttpError } from "../lib/http-error";
+import { buildPagination, skipFor } from "../lib/pagination";
 import { MutasiSaldoModel } from "../models/mutasi-saldo.model";
 import { UserModel } from "../models/user.model";
 
@@ -40,4 +41,25 @@ export async function applyMutasi(session: ClientSession, input: MutasiInput) {
   );
 
   return nasabah.saldo;
+}
+
+export async function getSaldo(nasabahId: string) {
+  const nasabah = await UserModel.findOne({ _id: nasabahId, role: "NASABAH" }).select("nama saldo");
+  if (!nasabah) throw new HttpError(404, "Nasabah tidak ditemukan");
+
+  return { nasabahId: nasabah.id as string, nama: nasabah.nama, saldo: nasabah.saldo };
+}
+
+export async function listMutasi(nasabahId: string, query: MutasiQuery) {
+  const filter = { nasabahId, ...(query.tipe && { tipe: query.tipe }) };
+
+  const [data, total] = await Promise.all([
+    MutasiSaldoModel.find(filter)
+      .sort({ tanggal: -1, _id: -1 })
+      .skip(skipFor(query.page, query.limit))
+      .limit(query.limit),
+    MutasiSaldoModel.countDocuments(filter),
+  ]);
+
+  return { data, pagination: buildPagination(query.page, query.limit, total) };
 }
