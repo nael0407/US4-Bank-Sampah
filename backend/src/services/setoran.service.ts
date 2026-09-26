@@ -1,6 +1,7 @@
-import { CreateSetoranInput } from "@bank-sampah/shared";
+import { CreateSetoranInput, Role, SetoranQuery } from "@bank-sampah/shared";
 import { withTransaction } from "../lib/db";
 import { HttpError } from "../lib/http-error";
+import { buildPagination, skipFor } from "../lib/pagination";
 import { JenisSampahModel } from "../models/jenis-sampah.model";
 import { SetoranModel } from "../models/setoran.model";
 import { UserModel } from "../models/user.model";
@@ -52,4 +53,52 @@ export async function createSetoran(petugasId: string, input: CreateSetoranInput
 
     return { setoran, saldo };
   });
+}
+
+type PenggunaAktif = { id: string; role: Role };
+
+const SATU_HARI_MS = 24 * 60 * 60 * 1000;
+
+function buildFilterTanggal(dari?: Date, sampai?: Date) {
+  if (!dari && !sampai) return {};
+  return {
+    tanggal: {
+      ...(dari && { $gte: dari }),
+      ...(sampai && { $lt: new Date(sampai.getTime() + SATU_HARI_MS) }),
+    },
+  };
+}
+
+export async function listSetoran(pengguna: PenggunaAktif, query: SetoranQuery) {
+  const nasabahId = pengguna.role === "NASABAH" ? pengguna.id : query.nasabahId;
+  const filter = {
+    ...(nasabahId && { nasabahId }),
+    ...(query.status && { status: query.status }),
+    ...buildFilterTanggal(query.dari, query.sampai),
+  };
+
+  const [data, total] = await Promise.all([
+    SetoranModel.find(filter)
+      .populate("nasabahId", "nama email")
+      .populate("petugasId", "nama")
+      .sort({ tanggal: -1 })
+      .skip(skipFor(query.page, query.limit))
+      .limit(query.limit),
+    SetoranModel.countDocuments(filter),
+  ]);
+
+  return { data, pagination: buildPagination(query.page, query.limit, total) };
+}
+
+export async function getSetoranById(pengguna: PenggunaAktif, id: string) {
+  const setoran = await SetoranModel.findById(id)
+    .populate("nasabahId", "nama email")
+    .populate("petugasId", "nama")
+    .populate("dibatalkanOleh", "nama");
+
+  const bukanMilikNasabah =
+    pengguna.role === "NASABAH" && setoran && !setoran.nasabahId._id.equals(pengguna.id);
+  if (!setoran || bukanMilikNasabah) throw new HttpError(404, "Setoran tidak ditemukan");
+
+  return setoran;
 }
