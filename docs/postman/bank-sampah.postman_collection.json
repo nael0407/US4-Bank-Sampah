@@ -1,0 +1,593 @@
+{
+  "info": {
+    "name": "Bank Sampah API",
+    "description": "Koleksi endpoint backend Bank Sampah. Jalankan salah satu request Login dulu, token otomatis tersimpan di variabel {{token}}. Isi {{jenisSampahId}} dengan ID jenis sampah dari hasil seed.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "nasabahId",
+      "value": ""
+    },
+    {
+      "key": "jenisSampahId",
+      "value": ""
+    },
+    {
+      "key": "setoranId",
+      "value": ""
+    },
+    {
+      "key": "titikJemputId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Nasabah",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Budi Santoso\",\n  \"email\": \"budi@example.com\",\n  \"password\": \"rahasia123\",\n  \"noHp\": \"081234567890\",\n  \"alamat\": \"RT 03 RW 05\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"token\", pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@banksampah.id\",\n  \"password\": \"admin12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login Petugas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"token\", pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"petugas@banksampah.id\",\n  \"password\": \"petugas12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login Nasabah",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"token\", pm.response.json().token);",
+                  "pm.collectionVariables.set(\"nasabahId\", pm.response.json().user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nasabah@banksampah.id\",\n  \"password\": \"nasabah12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Profil Saya",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Saldo",
+      "item": [
+        {
+          "name": "Saldo Saya (nasabah)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/saldo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "saldo"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mutasi Saya (nasabah)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/saldo/mutasi?page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "saldo",
+                "mutasi"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Saldo Nasabah (petugas/admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/saldo?nasabahId={{nasabahId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "saldo"
+              ],
+              "query": [
+                {
+                  "key": "nasabahId",
+                  "value": "{{nasabahId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mutasi Nasabah (petugas/admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/saldo/mutasi?nasabahId={{nasabahId}}&tipe=SETORAN",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "saldo",
+                "mutasi"
+              ],
+              "query": [
+                {
+                  "key": "nasabahId",
+                  "value": "{{nasabahId}}"
+                },
+                {
+                  "key": "tipe",
+                  "value": "SETORAN"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Setoran",
+      "item": [
+        {
+          "name": "Catat Setoran (petugas)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"setoranId\", pm.response.json().setoran._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/setoran",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nasabahId\": \"{{nasabahId}}\",\n  \"items\": [\n    {\n      \"jenisSampahId\": \"{{jenisSampahId}}\",\n      \"berat\": 2.5\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Daftar Setoran",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/setoran?page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Daftar Setoran per Tanggal",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/setoran?dari=2026-01-01&sampai=2026-12-31&status=AKTIF",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran"
+              ],
+              "query": [
+                {
+                  "key": "dari",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "sampai",
+                  "value": "2026-12-31"
+                },
+                {
+                  "key": "status",
+                  "value": "AKTIF"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detail Setoran",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/setoran/{{setoranId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran",
+                "{{setoranId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Batalkan Setoran (petugas/admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/setoran/{{setoranId}}/batal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "setoran",
+                "{{setoranId}}",
+                "batal"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alasan\": \"Salah input berat\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Titik Jemput",
+      "item": [
+        {
+          "name": "Daftar Titik Jemput",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/titik-jemput",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "titik-jemput"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tambah Titik Jemput (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"titikJemputId\", pm.response.json().titikJemput.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/titik-jemput",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "titik-jemput"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Pos RW 07\",\n  \"alamat\": \"Jl. Magelang Km 4, Sleman\",\n  \"lokasi\": {\n    \"lat\": -7.76,\n    \"lng\": 110.36\n  },\n  \"jadwal\": [\n    {\n      \"hari\": \"SENIN\",\n      \"jamMulai\": \"08:00\",\n      \"jamSelesai\": \"10:00\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Detail Titik Jemput",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/titik-jemput/{{titikJemputId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "titik-jemput",
+                "{{titikJemputId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ubah Titik Jemput (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/titik-jemput/{{titikJemputId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "titik-jemput",
+                "{{titikJemputId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Pos RW 07 Baru\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Hapus Titik Jemput (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/titik-jemput/{{titikJemputId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "titik-jemput",
+                "{{titikJemputId}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
