@@ -588,6 +588,124 @@
           }
         }
       ]
+    },
+    {
+      "name": "Laporan (Admin)",
+      "item": [
+        {
+          "name": "Ringkasan Laporan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/laporan/ringkasan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "laporan",
+                "ringkasan"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ringkasan Laporan per Periode",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/laporan/ringkasan?dari=2026-01-01&sampai=2026-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "laporan",
+                "ringkasan"
+              ],
+              "query": [
+                {
+                  "key": "dari",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "sampai",
+                  "value": "2026-12-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Laporan per Jenis Sampah (Harian)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/laporan/per-jenis?groupBy=hari",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "laporan",
+                "per-jenis"
+              ],
+              "query": [
+                {
+                  "key": "groupBy",
+                  "value": "hari"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Laporan per Jenis Sampah (Bulanan)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/laporan/per-jenis?groupBy=bulan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "laporan",
+                "per-jenis"
+              ],
+              "query": [
+                {
+                  "key": "groupBy",
+                  "value": "bulan"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Laporan - Gagal Validasi Tanggal (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/laporan/ringkasan?dari=bukan-tanggal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "laporan",
+                "ringkasan"
+              ],
+              "query": [
+                {
+                  "key": "dari",
+                  "value": "bukan-tanggal"
+                }
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
