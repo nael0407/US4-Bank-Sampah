@@ -38,6 +38,10 @@
     {
       "key": "titikJemputId",
       "value": ""
+    },
+    {
+      "key": "penarikanId",
+      "value": ""
     }
   ],
   "item": [
@@ -584,6 +588,198 @@
                 "titik-jemput",
                 "{{titikJemputId}}"
               ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Penarikan",
+      "item": [
+        {
+          "name": "Ajukan Penarikan Tunai (nasabah)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"penarikanId\", pm.response.json().penarikan._id || pm.response.json().penarikan.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jumlah\": 25000,\n  \"metode\": \"TUNAI\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Ajukan Penarikan E-Wallet (nasabah)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jumlah\": 50000,\n  \"metode\": \"E_WALLET\",\n  \"ewallet\": {\n    \"provider\": \"GoPay\",\n    \"nomor\": \"081234567890\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Daftar Penarikan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan?page=1&limit=10&status=PENDING",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": "PENDING"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detail Penarikan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/{{penarikanId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "{{penarikanId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Setujui Penarikan (petugas/admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/{{penarikanId}}/setujui",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "{{penarikanId}}",
+                "setujui"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"catatan\": \"Dana tunai diserahkan di pos RW\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Tolak Penarikan (petugas/admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan/{{penarikanId}}/tolak",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan",
+                "{{penarikanId}}",
+                "tolak"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"catatan\": \"Nomor e-wallet tidak aktif atau saldo tidak sesuai\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Ajukan Penarikan - Gagal Saldo Kurang (400)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/penarikan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "penarikan"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jumlah\": 999999999,\n  \"metode\": \"TUNAI\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         }
