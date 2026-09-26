@@ -1,0 +1,14 @@
+{
+  "name": "bank-sampah",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "backend"
+  ],
+  "scripts": {
+    "build:shared": "npm run build -w @bank-sampah/shared",
+    "dev:backend": "npm run dev -w backend",
+    "build:backend": "npm run build -w backend",
+    "seed": "npm run seed -w backend"
+  }
+}
