@@ -111,7 +111,7 @@ export async function setujuiPenarikan(petugasId: string, id: string, catatan?: 
       metode: hasil.penarikan.metode as MetodePenarikan,
       disetujui: true,
       saldo: hasil.saldo,
-      catatan: hasil.penarikan.catatan,
+      catatan: hasil.penarikan.catatan ?? undefined,
     });
   }
 
