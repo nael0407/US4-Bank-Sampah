@@ -5,3 +5,4 @@ export * from "./schemas/jenis-sampah.schema";
 export * from "./schemas/saldo.schema";
 export * from "./schemas/setoran.schema";
 export * from "./schemas/titik-jemput.schema";
+export * from "./schemas/user.schema";

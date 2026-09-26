@@ -9,6 +9,7 @@ import { jenisSampahRoutes } from "./routes/jenis-sampah.routes";
 import { saldoRoutes } from "./routes/saldo.routes";
 import { setoranRoutes } from "./routes/setoran.routes";
 import { titikJemputRoutes } from "./routes/titik-jemput.routes";
+import { usersRoutes } from "./routes/users.routes";
 
 export const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api/jenis-sampah", jenisSampahRoutes);
 app.use("/api/saldo", saldoRoutes);
 app.use("/api/setoran", setoranRoutes);
 app.use("/api/titik-jemput", titikJemputRoutes);
+app.use("/api/users", usersRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
