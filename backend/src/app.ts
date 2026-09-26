@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { config } from "./lib/config";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware";
 import { authRoutes } from "./routes/auth.routes";
+import { saldoRoutes } from "./routes/saldo.routes";
 
 export const app = express();
 
@@ -18,6 +19,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/saldo", saldoRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
