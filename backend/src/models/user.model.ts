@@ -1,5 +1,5 @@
 import { ROLES } from "@bank-sampah/shared";
-import { InferSchemaType, Schema, model } from "mongoose";
+import { HydratedDocument, InferSchemaType, Schema, model } from "mongoose";
 
 const userSchema = new Schema(
   {
@@ -17,3 +17,16 @@ const userSchema = new Schema(
 
 export type User = InferSchemaType<typeof userSchema>;
 export const UserModel = model("User", userSchema);
+
+export function toPublicUser(user: HydratedDocument<User>) {
+  return {
+    id: user.id as string,
+    nama: user.nama,
+    email: user.email,
+    role: user.role,
+    saldo: user.saldo,
+    noHp: user.noHp,
+    alamat: user.alamat,
+    aktif: user.aktif,
+  };
+}
