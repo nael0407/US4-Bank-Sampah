@@ -9,7 +9,8 @@
     "prebuild": "npm run build -w @bank-sampah/shared",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "seed": "tsx src/seed.ts"
+    "seed": "tsx src/seed.ts",
+    "db:reset": "tsx src/reset.ts && tsx src/seed.ts"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
