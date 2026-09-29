@@ -48,10 +48,12 @@ Saldo disimpan dalam **Rupiah** (bilangan bulat). Harga di-snapshot di tiap item
 
 ## Anggota Tim
 
-4 anggota, pembagian role dev:
-
-- Member A, Member B — Frontend & UI/UX
-- Member C, Member D — Backend & Database
+| Member | Nama | NIM | Peran |
+|---|---|---|---|
+| A | Theo Immanuel Sanyoto | 24/534368/TK/59227 | Frontend & UI/UX |
+| B | Arimbi Arum Sari | 24/541867/TK/60129 | Frontend & UI/UX |
+| C | Adnan Abdul Majid | 24/544058/TK/60471 | Backend & Database |
+| D | Natanael Sebastian Simanjuntak | 24/542676/TK/60273 | Backend & Database |
 
 ## Tech Stack
 
