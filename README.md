@@ -171,4 +171,4 @@ npm run start    # jalankan server produksi di Railway
 
 ## Laporan Proyek
 
-Link Google Drive: _belum dibuat — TODO, nyusul_
+Link Google Drive: https://drive.google.com/file/d/1vwCUq2M-EUVz3c7a5ZtFBnsdyx1ITGi8/view?usp=drive_link
