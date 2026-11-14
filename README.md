@@ -153,6 +153,17 @@ Kalau `SENDGRID_API_KEY` dan `SENDGRID_FROM_EMAIL` belum diisi, email gak dikiri
 
 Koleksi Postman ada di `docs/postman/bank-sampah.postman_collection.json` — import ke Postman, jalankan salah satu request Login, token otomatis tersimpan.
 
+## Menjalankan Frontend (Lokal)
+
+Pastikan backend sudah jalan di `http://localhost:4000`.
+
+```bash
+cp frontend/.env.example frontend/.env.local   # sesuaikan NEXT_PUBLIC_API_URL kalau backend beda alamat
+npm run dev:frontend                           # buka http://localhost:3000
+```
+
+Saat deploy ke Vercel, isi `NEXT_PUBLIC_API_URL` dengan URL backend di Railway.
+
 ## Deployment (Produksi)
 
 Backend dideploy ke **Railway** dan basis data menggunakan **MongoDB Atlas** (M0 free replica set).
