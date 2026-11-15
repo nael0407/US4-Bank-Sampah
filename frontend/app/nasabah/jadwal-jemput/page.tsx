@@ -16,12 +16,15 @@ const LeafletMap = dynamic(() => import("@/components/shared/leaflet-map"), {
 });
 
 interface TitikJemputApi {
-  _id: string;
+  id: string;
+  _id?: string;
   nama: string;
   alamat: string;
   lokasi: {
-    type: string;
-    coordinates: [number, number]; // [lng, lat]
+    lat?: number;
+    lng?: number;
+    type?: string;
+    coordinates?: [number, number]; // fallback [lng, lat]
   };
   jadwal: Array<{
     hari: string;
@@ -39,11 +42,11 @@ export default function JadwalJemputPage() {
   const rawList = response?.data || [];
 
   const mapPoints: MapPoint[] = rawList.map((item) => ({
-    id: item._id,
+    id: item.id || item._id || "",
     nama: item.nama,
     alamat: item.alamat,
-    lat: item.lokasi?.coordinates ? item.lokasi.coordinates[1] : 0,
-    lng: item.lokasi?.coordinates ? item.lokasi.coordinates[0] : 0,
+    lat: item.lokasi?.lat ?? item.lokasi?.coordinates?.[1] ?? 0,
+    lng: item.lokasi?.lng ?? item.lokasi?.coordinates?.[0] ?? 0,
     jadwal: item.jadwal,
   }));
 
@@ -89,7 +92,7 @@ export default function JadwalJemputPage() {
               ) : (
                 rawList.map((titik) => (
                   <div
-                    key={titik._id}
+                    key={titik.id || titik._id}
                     className="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/60 hover:bg-white hover:border-emerald-300 transition text-xs space-y-2"
                   >
                     <div>

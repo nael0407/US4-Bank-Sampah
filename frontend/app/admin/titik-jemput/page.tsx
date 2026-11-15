@@ -21,12 +21,15 @@ const LeafletMap = dynamic(() => import("@/components/shared/leaflet-map"), {
 });
 
 interface TitikJemputItem {
-  _id: string;
+  id: string;
+  _id?: string;
   nama: string;
   alamat: string;
   lokasi: {
-    type: string;
-    coordinates: [number, number]; // [lng, lat]
+    lat?: number;
+    lng?: number;
+    type?: string;
+    coordinates?: [number, number]; // fallback [lng, lat]
   };
   jadwal: Array<{
     hari: string;
@@ -55,11 +58,11 @@ export default function AdminTitikJemputPage() {
   const list = response?.data || [];
 
   const mapPoints: MapPoint[] = list.map((item) => ({
-    id: item._id,
+    id: item.id || item._id || "",
     nama: item.nama,
     alamat: item.alamat,
-    lat: item.lokasi?.coordinates ? item.lokasi.coordinates[1] : 0,
-    lng: item.lokasi?.coordinates ? item.lokasi.coordinates[0] : 0,
+    lat: item.lokasi?.lat ?? item.lokasi?.coordinates?.[1] ?? 0,
+    lng: item.lokasi?.lng ?? item.lokasi?.coordinates?.[0] ?? 0,
     jadwal: item.jadwal,
   }));
 
@@ -74,8 +77,8 @@ export default function AdminTitikJemputPage() {
           nama,
           alamat,
           lokasi: {
-            type: "Point",
-            coordinates: [Number(lng), Number(lat)], // GeoJSON format: [lng, lat]
+            lat: Number(lat),
+            lng: Number(lng),
           },
           jadwal: jadwalList,
         }),
@@ -336,9 +339,13 @@ export default function AdminTitikJemputPage() {
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
-              {list.map((item) => (
+              {list.map((item) => {
+                const itemId = item.id || item._id || item.nama;
+                const itemLat = item.lokasi?.lat ?? item.lokasi?.coordinates?.[1];
+                const itemLng = item.lokasi?.lng ?? item.lokasi?.coordinates?.[0];
+                return (
                 <div
-                  key={item._id}
+                  key={itemId}
                   className="p-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50"
                 >
                   <div>
@@ -356,7 +363,7 @@ export default function AdminTitikJemputPage() {
 
                   <div className="flex items-center gap-2 self-end sm:self-auto">
                     <span className="text-[11px] font-mono text-slate-400">
-                      {item.lokasi?.coordinates ? `${item.lokasi.coordinates[1].toFixed(4)}, ${item.lokasi.coordinates[0].toFixed(4)}` : ""}
+                      {itemLat !== undefined && itemLng !== undefined ? `${itemLat.toFixed(4)}, ${itemLng.toFixed(4)}` : ""}
                     </span>
                     <Button
                       variant="ghost"
@@ -364,7 +371,7 @@ export default function AdminTitikJemputPage() {
                       className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
                       onClick={() => {
                         if (confirm(`Hapus titik penjemputan "${item.nama}"?`)) {
-                          deleteMutation.mutate(item._id);
+                          deleteMutation.mutate(item.id || item._id || "");
                         }
                       }}
                     >
@@ -372,7 +379,8 @@ export default function AdminTitikJemputPage() {
                     </Button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

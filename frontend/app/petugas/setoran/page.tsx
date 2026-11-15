@@ -29,9 +29,10 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/auth-context";
 
 interface JenisSampah {
-  _id: string;
+  id: string;
+  _id?: string;
   nama: string;
-  kategori: string;
+  kategori?: string;
   hargaPerKg: number;
   aktif: boolean;
 }
@@ -110,7 +111,7 @@ export default function SetoranKasirPage() {
   });
 
   // Calculate live row values
-  const jenisMap = new Map((jenisSampahList || []).map((j) => [j._id, j]));
+  const jenisMap = new Map((jenisSampahList || []).map((j) => [j.id || j._id || "", j]));
 
   const calculateRowSubtotal = (row: SetoranRow) => {
     if (!row.jenisSampahId || !row.berat) return 0;
@@ -301,11 +302,15 @@ export default function SetoranKasirPage() {
                             required
                           >
                             <option value="">-- Pilih Jenis Sampah --</option>
-                            {jenisSampahList?.map((j) => (
-                              <option key={j._id} value={j._id}>
-                                {j.nama} ({j.kategori}) — {formatRupiah(j.hargaPerKg)}/kg
-                              </option>
-                            ))}
+                            {jenisSampahList?.map((j) => {
+                              const jId = j.id || j._id || "";
+                              return (
+                                <option key={jId} value={jId}>
+                                  {j.nama}
+                                  {j.kategori ? ` (${j.kategori})` : ""} — {formatRupiah(j.hargaPerKg)}/kg
+                                </option>
+                              );
+                            })}
                           </select>
                         </div>
 

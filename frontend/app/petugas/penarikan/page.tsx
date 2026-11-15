@@ -24,7 +24,8 @@ import {
 import { toast } from "sonner";
 
 interface PenarikanQueueItem {
-  id: string;
+  _id: string;
+  id?: string;
   nasabahId: any;
   petugasId?: any;
   jumlah: number;
@@ -34,6 +35,7 @@ interface PenarikanQueueItem {
     provider: string;
     nomor: string;
   };
+  catatan?: string;
   catatanPetugas?: string;
   createdAt: string;
 }
@@ -105,14 +107,15 @@ export default function PetugasPenarikanPage() {
 
   const handleConfirmAction = () => {
     if (!actionItem) return;
+    const targetId = actionItem.item._id || actionItem.item.id || "";
     if (actionItem.type === "SETUJUI") {
-      approveMutation.mutate({ id: actionItem.item.id, catatan });
+      approveMutation.mutate({ id: targetId, catatan });
     } else {
       if (!catatan.trim()) {
         toast.error("Alasan penolakan wajib diisi");
         return;
       }
-      rejectMutation.mutate({ id: actionItem.item.id, catatan });
+      rejectMutation.mutate({ id: targetId, catatan });
     }
   };
 
@@ -182,7 +185,7 @@ export default function PetugasPenarikanPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700">
                   {list.map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50/70 transition">
+                    <tr key={item._id || item.id} className="hover:bg-slate-50/70 transition">
                       <td className="p-3 pl-6 font-medium text-slate-800">
                         {formatTanggal(item.createdAt)}
                       </td>
@@ -226,9 +229,9 @@ export default function PetugasPenarikanPage() {
                         >
                           {item.status}
                         </Badge>
-                        {item.catatanPetugas && (
+                        {(item.catatan || item.catatanPetugas) && (
                           <span className="block text-[11px] text-slate-400 mt-0.5">
-                            {item.catatanPetugas}
+                            {item.catatan || item.catatanPetugas}
                           </span>
                         )}
                       </td>

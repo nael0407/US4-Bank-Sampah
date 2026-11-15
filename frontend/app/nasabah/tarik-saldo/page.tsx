@@ -25,7 +25,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/auth-context";
 
 interface PenarikanItem {
-  id: string;
+  _id: string;
+  id?: string;
   jumlah: number;
   metode: "TUNAI" | "E_WALLET";
   status: "PENDING" | "DISETUJUI" | "DITOLAK";
@@ -33,6 +34,7 @@ interface PenarikanItem {
     provider: string;
     nomor: string;
   };
+  catatan?: string;
   catatanPetugas?: string;
   createdAt: string;
 }
@@ -315,7 +317,7 @@ export default function TarikSaldoPage() {
                 <div className="space-y-3">
                   {penarikanData.data.slice(0, 5).map((p) => (
                     <div
-                      key={p.id}
+                      key={p._id || p.id}
                       className="p-3 rounded-xl border border-slate-100 bg-slate-50/70 text-xs space-y-1.5"
                     >
                       <div className="flex items-center justify-between">
@@ -341,9 +343,9 @@ export default function TarikSaldoPage() {
                         </span>
                         <span>{formatTanggal(p.createdAt)}</span>
                       </div>
-                      {p.catatanPetugas && (
+                      {(p.catatan || p.catatanPetugas) && (
                         <p className="text-[11px] text-slate-600 bg-white p-1.5 rounded border border-slate-200/60 mt-1">
-                          Catatan: {p.catatanPetugas}
+                          Catatan: {p.catatan || p.catatanPetugas}
                         </p>
                       )}
                     </div>

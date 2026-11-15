@@ -15,9 +15,10 @@ import { Tags, Plus, Edit2, Trash2, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface JenisSampah {
-  _id: string;
+  id: string;
+  _id?: string;
   nama: string;
-  kategori: string;
+  kategori?: string;
   hargaPerKg: number;
   deskripsi?: string;
   aktif: boolean;
@@ -57,7 +58,7 @@ export default function AdminJenisSampahPage() {
   const openEditModal = (item: JenisSampah) => {
     setEditingItem(item);
     setNama(item.nama);
-    setKategori(item.kategori);
+    setKategori(item.kategori || "Plastik");
     setHargaPerKg(item.hargaPerKg);
     setDeskripsi(item.deskripsi || "");
     setAktif(item.aktif);
@@ -76,7 +77,8 @@ export default function AdminJenisSampahPage() {
       };
 
       if (editingItem) {
-        return apiClient(`/api/jenis-sampah/${editingItem._id}`, {
+        const itemId = editingItem.id || editingItem._id;
+        return apiClient(`/api/jenis-sampah/${itemId}`, {
           method: "PATCH",
           body: JSON.stringify(payload),
         });
@@ -176,8 +178,10 @@ export default function AdminJenisSampahPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {list.map((item) => (
-                    <tr key={item._id} className="hover:bg-slate-50/70 transition">
+                  {list.map((item) => {
+                    const itemId = item.id || item._id || item.nama;
+                    return (
+                    <tr key={itemId} className="hover:bg-slate-50/70 transition">
                       <td className="p-3 pl-6">
                         <span className="font-bold text-slate-900 block text-sm">{item.nama}</span>
                         {item.deskripsi && (
@@ -186,7 +190,7 @@ export default function AdminJenisSampahPage() {
                       </td>
                       <td className="p-3">
                         <Badge variant="secondary" className="text-slate-700">
-                          {item.kategori}
+                          {item.kategori || "Umum"}
                         </Badge>
                       </td>
                       <td className="p-3 text-right font-extrabold text-sm text-emerald-700">
@@ -213,7 +217,7 @@ export default function AdminJenisSampahPage() {
                           className="h-8 w-8 text-slate-500 hover:text-rose-600 hover:bg-rose-50"
                           onClick={() => {
                             if (confirm(`Yakin ingin menonaktifkan/menghapus "${item.nama}"?`)) {
-                              deleteMutation.mutate(item._id);
+                              deleteMutation.mutate(item.id || item._id || "");
                             }
                           }}
                           title="Hapus / Nonaktifkan"
@@ -222,7 +226,8 @@ export default function AdminJenisSampahPage() {
                         </Button>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
