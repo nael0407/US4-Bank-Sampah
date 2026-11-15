@@ -38,13 +38,15 @@ export default function AdminDashboardPage() {
     queryFn: () => apiClient("/api/laporan/ringkasan"),
   });
 
-  const { data: perJenisData, isLoading: loadingPerJenis } = useQuery<{ data: any[] }>({
+  const { data: perJenisData, isLoading: loadingPerJenis } = useQuery<{ data: { perJenis?: any[] } }>({
     queryKey: ["admin-per-jenis-laporan"],
     queryFn: () => apiClient("/api/laporan/per-jenis"),
   });
 
-  const ringkasan = ringkasanData?.data;
-  const chartData = perJenisData?.data || [];
+  const ringkasan = ringkasanData?.data?.ringkasan;
+  const chartData = Array.isArray(perJenisData?.data?.perJenis)
+    ? perJenisData.data.perJenis
+    : [];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -87,7 +89,7 @@ export default function AdminDashboardPage() {
             loadingRingkasan ? (
               <Skeleton className="h-8 w-28" />
             ) : (
-              formatRupiah(ringkasan?.totalNilai || 0)
+              formatRupiah(ringkasan?.totalNilaiSetoran || 0)
             )
           }
           subtitle="Nilai rupiah sampah warga"
@@ -144,7 +146,7 @@ export default function AdminDashboardPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
                     <XAxis
-                      dataKey="nama"
+                      dataKey="namaJenis"
                       stroke="#94a3b8"
                       fontSize={11}
                       tickLine={false}

@@ -51,14 +51,19 @@ export default function AdminLaporanPage() {
     queryFn: () => apiClient("/api/laporan/ringkasan", { params: queryParams }),
   });
 
-  const { data: perJenisRes, isLoading: loadingPerJenis } = useQuery<{ data: any[] }>({
+  const { data: perJenisRes, isLoading: loadingPerJenis } = useQuery<{ data: { perJenis?: any[] } }>({
     queryKey: ["admin-laporan-per-jenis", fromDate, toDate],
     queryFn: () => apiClient("/api/laporan/per-jenis", { params: queryParams }),
   });
 
-  const ringkasan = ringkasanRes?.data;
-  const listPerJenis = perJenisRes?.data || [];
-  const topNasabah = ringkasan?.nasabahTeraktif || [];
+  const ringkasan = ringkasanRes?.data?.ringkasan;
+  const listPerJenis = Array.isArray(perJenisRes?.data?.perJenis)
+    ? perJenisRes.data.perJenis
+    : [];
+  const totalBeratJenis = listPerJenis.reduce((sum, item) => sum + (item.totalKg || 0), 0);
+  const topNasabah = Array.isArray(ringkasanRes?.data?.nasabahTeraktif)
+    ? ringkasanRes.data.nasabahTeraktif
+    : [];
 
   return (
     <div className="space-y-8 print:p-0">
@@ -149,7 +154,7 @@ export default function AdminLaporanPage() {
             loadingRingkasan ? (
               <Skeleton className="h-8 w-28" />
             ) : (
-              formatRupiah(ringkasan?.totalNilai || 0)
+              formatRupiah(ringkasan?.totalNilaiSetoran || 0)
             )
           }
           subtitle="Tercatat masuk ke saldo warga"
@@ -206,7 +211,7 @@ export default function AdminLaporanPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={listPerJenis} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
                     <XAxis
-                      dataKey="nama"
+                      dataKey="namaJenis"
                       stroke="#94a3b8"
                       fontSize={11}
                       tickLine={false}
@@ -250,7 +255,7 @@ export default function AdminLaporanPage() {
                     <Pie
                       data={listPerJenis}
                       dataKey="totalNilai"
-                      nameKey="nama"
+                      nameKey="namaJenis"
                       cx="50%"
                       cy="50%"
                       outerRadius={95}
@@ -284,7 +289,7 @@ export default function AdminLaporanPage() {
               <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
                 <tr>
                   <th className="p-3 pl-6">Jenis Sampah</th>
-                  <th className="p-3">Kategori</th>
+                  <th className="p-3 text-right">Transaksi</th>
                   <th className="p-3 text-right">Total Berat (kg)</th>
                   <th className="p-3 text-right">Persentase</th>
                   <th className="p-3 pr-6 text-right">Total Nilai Saldo</th>
@@ -293,11 +298,13 @@ export default function AdminLaporanPage() {
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {listPerJenis.map((item, idx) => (
                   <tr key={idx} className="hover:bg-slate-50">
-                    <td className="p-3 pl-6 font-semibold text-slate-900">{item.nama}</td>
-                    <td className="p-3">{item.kategori}</td>
+                    <td className="p-3 pl-6 font-semibold text-slate-900">{item.namaJenis}</td>
+                    <td className="p-3 text-right text-slate-500">{item.totalTransaksi ?? 0}x</td>
                     <td className="p-3 text-right font-medium">{formatBerat(item.totalKg)}</td>
                     <td className="p-3 text-right text-slate-500">
-                      {item.persentaseKg ? `${item.persentaseKg.toFixed(1)}%` : "-"}
+                      {totalBeratJenis > 0
+                        ? `${((item.totalKg / totalBeratJenis) * 100).toFixed(1)}%`
+                        : "-"}
                     </td>
                     <td className="p-3 pr-6 text-right font-bold text-emerald-700">
                       {formatRupiah(item.totalNilai)}
