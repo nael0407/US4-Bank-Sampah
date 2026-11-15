@@ -25,7 +25,7 @@ import { EcoSimulator } from "@/components/shared/eco-simulator";
 import { fireEcoConfetti } from "@/lib/confetti";
 
 interface JenisSampah {
-  _id: string;
+  id: string;
   nama: string;
   kategori: string;
   hargaPerKg: number;
@@ -230,7 +230,7 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {jenisSampahList && jenisSampahList.length > 0 ? (
             jenisSampahList.map((item) => (
-              <Card key={item._id} className="hover:border-emerald-400 hover:shadow-md transition-all hover:scale-[1.02] duration-200">
+              <Card key={item.id} className="hover:border-emerald-400 hover:shadow-md transition-all hover:scale-[1.02] duration-200">
                 <CardContent className="p-5 flex items-center justify-between">
                   <div>
                     <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
