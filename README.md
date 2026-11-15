@@ -185,3 +185,14 @@ npm run start    # jalankan server produksi di Railway
 ## Laporan Proyek
 
 Link Google Drive: https://drive.google.com/file/d/1vwCUq2M-EUVz3c7a5ZtFBnsdyx1ITGi8/view?usp=drive_link
+
+## Video Presentasi dan Demo Aplikasi
+
+Link Google Drive: https://drive.google.com/file/d/120acDpib_L0TCcyjXQ3p--mGIRPDWnFT/view?usp=sharing
+
+## Link Web
+
+Link Web: https://bank-sampah-ecru-psi.vercel.app/
+
+
+
