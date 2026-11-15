@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 interface MutasiItem {
-  id: string;
+  _id: string;
   tipe: "SETORAN" | "PENARIKAN" | "KOREKSI";
   jumlah: number;
   saldoSebelum: number;
@@ -153,7 +153,7 @@ export default function RiwayatPage() {
                   const isPositive = mutasi.jumlah > 0;
                   return (
                     <div
-                      key={mutasi.id}
+                      key={mutasi._id}
                       className="flex items-center justify-between p-4 px-6 hover:bg-slate-50/70 transition"
                     >
                       <div className="flex items-center gap-3.5">
