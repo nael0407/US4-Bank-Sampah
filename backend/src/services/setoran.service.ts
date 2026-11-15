@@ -109,7 +109,9 @@ export async function getSetoranById(pengguna: PenggunaAktif, id: string) {
     .populate("dibatalkanOleh", "nama");
 
   const bukanMilikNasabah =
-    pengguna.role === "NASABAH" && setoran && !setoran.nasabahId._id.equals(pengguna.id);
+    pengguna.role === "NASABAH" &&
+    setoran &&
+    (!setoran.nasabahId || !setoran.nasabahId._id.equals(pengguna.id));
   if (!setoran || bukanMilikNasabah) throw new HttpError(404, "Setoran tidak ditemukan");
 
   return setoran;

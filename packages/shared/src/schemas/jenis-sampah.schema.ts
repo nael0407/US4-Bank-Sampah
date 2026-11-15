@@ -9,7 +9,11 @@ const jenisSampahBaseSchema = z.object({
 export const createJenisSampahSchema = jenisSampahBaseSchema;
 export type CreateJenisSampahInput = z.infer<typeof createJenisSampahSchema>;
 
-export const updateJenisSampahSchema = jenisSampahBaseSchema.partial();
+export const updateJenisSampahSchema = jenisSampahBaseSchema
+  .extend({
+    aktif: z.boolean(),
+  })
+  .partial();
 export type UpdateJenisSampahInput = z.infer<typeof updateJenisSampahSchema>;
 
 export const jenisSampahQuerySchema = z.object({

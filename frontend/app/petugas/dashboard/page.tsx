@@ -19,7 +19,8 @@ export default function PetugasDashboard() {
   // Pending withdrawals
   const { data: pendingPenarikan, isLoading: loadingPenarikan } = useQuery<{
     data: any[];
-    total: number;
+    pagination?: { total: number };
+    total?: number;
   }>({
     queryKey: ["petugas-pending-penarikan"],
     queryFn: () => apiClient("/api/penarikan?status=PENDING"),
@@ -28,13 +29,15 @@ export default function PetugasDashboard() {
   // Recent deposits
   const { data: setoranList, isLoading: loadingSetoran } = useQuery<{
     data: any[];
-    total: number;
+    pagination?: { total: number };
+    total?: number;
   }>({
     queryKey: ["petugas-recent-setoran"],
     queryFn: () => apiClient("/api/setoran?limit=5"),
   });
 
-  const pendingCount = pendingPenarikan?.total ?? 0;
+  const pendingCount = pendingPenarikan?.pagination?.total ?? pendingPenarikan?.total ?? 0;
+  const totalSetoranCount = setoranList?.pagination?.total ?? setoranList?.total ?? 0;
   const recentDeposits = setoranList?.data || [];
 
   return (
@@ -80,7 +83,7 @@ export default function PetugasDashboard() {
 
         <StatCard
           title="Total Transaksi Ditimbang"
-          value={loadingSetoran ? <Skeleton className="h-8 w-16" /> : `${setoranList?.total ?? 0} Kali`}
+          value={loadingSetoran ? <Skeleton className="h-8 w-16" /> : `${totalSetoranCount} Kali`}
           subtitle="Tercatat dalam sistem"
           icon={Scale}
           colorScheme="emerald"

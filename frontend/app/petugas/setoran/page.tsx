@@ -104,7 +104,8 @@ export default function SetoranKasirPage() {
   // 3. Fetch Recent Setoran Records
   const { data: setoranRecords, isLoading: loadingRecords } = useQuery<{
     data: SetoranRecord[];
-    total: number;
+    pagination?: { total: number };
+    total?: number;
   }>({
     queryKey: ["petugas-all-setoran"],
     queryFn: () => apiClient("/api/setoran?limit=30"),
@@ -443,7 +444,9 @@ export default function SetoranKasirPage() {
               Riwayat setoran. Setoran salah dapat dibatalkan untuk menerbitkan entri koreksi saldo otomatis.
             </p>
           </div>
-          <Badge variant="outline">{setoranRecords?.total ?? 0} total transaksi</Badge>
+          <Badge variant="outline">
+            {setoranRecords?.pagination?.total ?? setoranRecords?.total ?? 0} total transaksi
+          </Badge>
         </CardHeader>
         <CardContent className="p-0">
           {loadingRecords ? (

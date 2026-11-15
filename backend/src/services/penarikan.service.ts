@@ -65,7 +65,9 @@ export async function getPenarikanById(pengguna: PenggunaAktif, id: string) {
     .populate("diprosesOleh", "nama");
 
   const bukanMilikNasabah =
-    pengguna.role === "NASABAH" && penarikan && !penarikan.nasabahId._id.equals(pengguna.id);
+    pengguna.role === "NASABAH" &&
+    penarikan &&
+    (!penarikan.nasabahId || !penarikan.nasabahId._id.equals(pengguna.id));
   if (!penarikan || bukanMilikNasabah) throw new HttpError(404, "Pengajuan penarikan tidak ditemukan");
 
   return penarikan;

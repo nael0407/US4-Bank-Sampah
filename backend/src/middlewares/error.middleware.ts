@@ -24,7 +24,7 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   }
 
   if (isDuplicateKeyError(err)) {
-    const field = Object.keys(err.keyValue)[0];
+    const field = Object.keys(err.keyValue ?? {})[0] || "Data";
     return res.status(409).json({ message: `${field} sudah terdaftar` });
   }
 
@@ -32,6 +32,6 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   res.status(500).json({ message: "Terjadi kesalahan pada server" });
 }
 
-function isDuplicateKeyError(err: unknown): err is { code: number; keyValue: Record<string, unknown> } {
+function isDuplicateKeyError(err: unknown): err is { code: number; keyValue?: Record<string, unknown> } {
   return typeof err === "object" && err !== null && "code" in err && err.code === 11000;
 }

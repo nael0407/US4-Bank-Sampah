@@ -53,7 +53,8 @@ export default function PetugasPenarikanPage() {
 
   const { data: response, isLoading } = useQuery<{
     data: PenarikanQueueItem[];
-    total: number;
+    pagination?: { total: number };
+    total?: number;
   }>({
     queryKey: ["petugas-penarikan-queue", filterStatus],
     queryFn: () => {
@@ -157,7 +158,9 @@ export default function PetugasPenarikanPage() {
             <Wallet className="h-4 w-4 text-emerald-600" />
             <span>Daftar Permintaan Penarikan</span>
           </CardTitle>
-          <span className="text-xs text-slate-400">Total {response?.total ?? 0} permohonan</span>
+          <span className="text-xs text-slate-400">
+            Total {response?.pagination?.total ?? response?.total ?? 0} permohonan
+          </span>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (

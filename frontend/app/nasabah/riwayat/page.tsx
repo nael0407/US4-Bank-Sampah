@@ -53,7 +53,8 @@ export default function RiwayatPage() {
   // Fetch Mutasi
   const { data: mutasiResponse, isLoading: loadingMutasi } = useQuery<{
     data: MutasiItem[];
-    total: number;
+    pagination?: { total: number };
+    total?: number;
   }>({
     queryKey: ["mutasi-full", filterTipe],
     queryFn: () => {
@@ -132,7 +133,7 @@ export default function RiwayatPage() {
               </div>
             </div>
             <span className="text-xs text-slate-400">
-              Total {mutasiResponse?.total ?? 0} catatan mutasi
+              Total {mutasiResponse?.pagination?.total ?? mutasiResponse?.total ?? 0} catatan mutasi
             </span>
           </CardHeader>
           <CardContent className="p-0">
