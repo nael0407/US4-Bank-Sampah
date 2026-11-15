@@ -87,7 +87,7 @@ export default function SetoranKasirPage() {
   const { data: nasabahList } = useQuery<UserNasabah[]>({
     queryKey: ["users-nasabah-list"],
     queryFn: async () => {
-      const res = await apiClient<{ data: UserNasabah[] }>("/api/users?role=NASABAH&limit=100");
+      const res = await apiClient<{ data: UserNasabah[] }>("/api/users?role=NASABAH&limit=50");
       return res.data || [];
     },
   });

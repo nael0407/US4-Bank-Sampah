@@ -6,9 +6,13 @@ import { validateBody } from "../middlewares/validate.middleware";
 
 export const usersRoutes = Router();
 
-usersRoutes.use(requireAuth, requireRole("ADMIN"));
+usersRoutes.use(requireAuth);
 
-usersRoutes.get("/", usersController.list);
+// Petugas hanya boleh melihat daftar nasabah (untuk memilih nasabah saat input setoran).
+usersRoutes.get("/", requireRole("ADMIN", "PETUGAS"), usersController.list);
+
+usersRoutes.use(requireRole("ADMIN"));
+
 usersRoutes.get("/:id", usersController.detail);
 usersRoutes.post("/", validateBody(createUserSchema), usersController.create);
 usersRoutes.patch("/:id", validateBody(updateUserSchema), usersController.update);

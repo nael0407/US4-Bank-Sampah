@@ -4,7 +4,9 @@ import { getAuthUser } from "../middlewares/auth.middleware";
 import * as usersService from "../services/users.service";
 
 export async function list(req: Request, res: Response) {
-  const query = userQuerySchema.parse(req.query);
+  const authUser = getAuthUser(req);
+  const parsed = userQuerySchema.parse(req.query);
+  const query = authUser.role === "PETUGAS" ? { ...parsed, role: "NASABAH" as const, aktif: true } : parsed;
   const result = await usersService.listUsers(query);
   res.json(result);
 }

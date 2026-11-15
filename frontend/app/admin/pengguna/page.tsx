@@ -47,8 +47,8 @@ export default function AdminPenggunaPage() {
     queryFn: () => {
       const url =
         roleFilter === "ALL"
-          ? "/api/users?limit=100"
-          : `/api/users?role=${roleFilter}&limit=100`;
+          ? "/api/users?limit=50"
+          : `/api/users?role=${roleFilter}&limit=50`;
       return apiClient(url);
     },
   });
