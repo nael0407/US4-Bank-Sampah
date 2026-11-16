@@ -192,6 +192,6 @@ Link Google Drive: https://drive.google.com/file/d/120acDpib_L0TCcyjXQ3p--mGIRPD
 
 ## Web App
 
-Link Web App: banksampahgg.vercel.app
+Link Web App: https://banksampahgg.vercel.app
 
 
