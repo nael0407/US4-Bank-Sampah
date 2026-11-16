@@ -190,9 +190,8 @@ Link Google Drive: https://drive.google.com/file/d/1vwCUq2M-EUVz3c7a5ZtFBnsdyx1I
 
 Link Google Drive: https://drive.google.com/file/d/120acDpib_L0TCcyjXQ3p--mGIRPDWnFT/view?usp=sharing
 
-## Link Web
+## Web App
 
-Link Web: https://bank-sampah-ecru-psi.vercel.app/
-
+Link Web App: banksampahgg.vercel.app
 
 
